@@ -12,7 +12,7 @@ aws rds create-db-instance \
 
 psql --username=${PG_USER} \
     --password \
-    --host=${PG_INSTANCE} \
+    --host=${PG_INSTANCE_FQDN} \
     --dbname=${DB_NAME} \
     --port=5432 \
     --command="CREATE EXTENSION aws_s3 CASCADE;"
@@ -74,7 +74,7 @@ psql --username=${PG_USER} \
 # TODO: Wait for rds instance
 echo "Add role to RDS instance"
 aws rds add-role-to-db-instance \
-   --db-instance-identifier rkoinstance-3 \
+   --db-instance-identifier ${PG_INSTANCE} \
    --feature-name s3Import \
    --role-arn arn:aws:iam::517533378855:role/rds-s3-import-role \
    --region us-east-2
