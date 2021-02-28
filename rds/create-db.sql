@@ -40,6 +40,17 @@ SELECT aws_s3.table_import_from_s3(
     'us-east-2'
 );
 
+-- Generated from Redshift UNLOAD
+SELECT aws_s3.table_import_from_s3(
+    'public.zipcode',
+    '',
+    '(format text)',
+    'bangkok',
+    'us_zipcode0000_part_00',
+    'us-east-2'
+);
+
+-- TODO: Try COPY FROM syntax
 
 select  COUNT(*)
 from    public.zipcode

@@ -9,7 +9,23 @@ aws rds create-db-instance \
     --master-user-password ${PG_PASSWORD} \
     --allocated-storage 20 \
     --publicly-accessible
-    # --availability-zone us-west-2a \
+
+psql --username=${PG_USER} \
+    --password \
+    --host=${PG_INSTANCE} \
+    --dbname=${DB_NAME} \
+    --port=5432 \
+    --command="CREATE EXTENSION aws_s3 CASCADE;"
+
+# Clean up
+# aws iam delete-role --role-name rds-s3-import-role
+# aws iam detach-role-policy \
+# --role-name rds-s3-import-role \
+# --policy-arn "arn:aws:iam::517533378855:policy/rds-s3-import-policy"
+# aws iam delete-role-policy \
+#     --role-name rds-s3-import-role \
+#     --policy-name rds-s3-import-policy
+# aws iam delete-policy --policy-arn "arn:aws:iam::517533378855:policy/rds-s3-import-policy"
 
 # echo "Create RDS access to S3 policy"
 # aws iam create-policy \
@@ -26,7 +42,9 @@ aws rds create-db-instance \
 #          "Effect": "Allow",
 #          "Resource": [
 #            "arn:aws:s3:::condesa", 
-#            "arn:aws:s3:::condesa/*"
+#            "arn:aws:s3:::condesa/*",
+#            "arn:aws:s3:::bangkok", 
+#            "arn:aws:s3:::bangkok/*"
 #          ] 
 #        }
 #      ] 
@@ -53,6 +71,7 @@ aws rds create-db-instance \
 #    --policy-arn arn:aws:iam::517533378855:policy/rds-s3-import-policy \
 #    --role-name rds-s3-import-role
 
+# TODO: Wait for rds instance
 echo "Add role to RDS instance"
 aws rds add-role-to-db-instance \
    --db-instance-identifier rkoinstance-3 \
