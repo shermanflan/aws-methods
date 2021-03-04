@@ -6,7 +6,7 @@ import time
 
 from sqlalchemy import create_engine
 
-from ingest import load_sync, load_async, unloader
+from ingest import unload_sync, unload_async
 
 logging.basicConfig(format='%(asctime)s %(levelname)s [%(name)s]: %(message)s',
                     datefmt='%Y-%m-%d %I:%M:%S %p', level=logging.DEBUG)
@@ -56,13 +56,13 @@ def main():
 
     start = datetime.now()
 
-    load_sync(engine)
+    unload_sync(engine)
 
     logger.info(f"Total sync elapsed: {datetime.now() - start}")
 
     start = datetime.now()
 
-    asyncio.run(load_async(engine))
+    asyncio.run(unload_async(engine))
 
     logger.info(f"Total async elapsed: {datetime.now() - start}")
 

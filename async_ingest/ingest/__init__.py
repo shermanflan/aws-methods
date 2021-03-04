@@ -18,7 +18,7 @@ MANIFEST ALLOWOVERWRITE
 """
 
 
-async def load_async(engine):
+async def unload_async(engine):
 
     await asyncio.gather(
         asyncio.to_thread(
@@ -44,7 +44,7 @@ async def load_async(engine):
     )
 
 
-def load_sync(engine):
+def unload_sync(engine):
 
     unloader(engine,
              sql='SELECT * FROM public.zipcode_ca',
