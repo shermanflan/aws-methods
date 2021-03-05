@@ -1,6 +1,60 @@
-DROP TABLE IF EXISTS public.zipcode CASCADE;
+DROP TABLE IF EXISTS public.zipcode_us CASCADE;
 
-CREATE TABLE IF NOT EXISTS public.zipcode
+CREATE TABLE IF NOT EXISTS public.zipcode_us
+(
+    country_code    VARCHAR(2)      NULL,
+    postal_code     VARCHAR(20)     NULL,
+    place_name      varchar(180)    NULL,
+    admin_name1     varchar(100)    NULL,
+    admin_code1     varchar(20)     NULL,
+    admin_name2     varchar(100)    NULL,
+    admin_code2     varchar(20)     NULL,
+    admin_name3     varchar(100)    NULL,
+    admin_code3     varchar(20)     NULL,
+    latitude        REAL            NULL,
+    longitude       REAL            NULL,
+    accuracy        CHAR(1)         NULL
+);
+
+DROP TABLE IF EXISTS public.zipcode_ca CASCADE;
+
+CREATE TABLE IF NOT EXISTS public.zipcode_ca
+(
+    country_code    VARCHAR(2)      NULL,
+    postal_code     VARCHAR(20)     NULL,
+    place_name      varchar(180)    NULL,
+    admin_name1     varchar(100)    NULL,
+    admin_code1     varchar(20)     NULL,
+    admin_name2     varchar(100)    NULL,
+    admin_code2     varchar(20)     NULL,
+    admin_name3     varchar(100)    NULL,
+    admin_code3     varchar(20)     NULL,
+    latitude        REAL            NULL,
+    longitude       REAL            NULL,
+    accuracy        CHAR(1)         NULL
+);
+
+DROP TABLE IF EXISTS public.zipcode_mx CASCADE;
+
+CREATE TABLE IF NOT EXISTS public.zipcode_mx
+(
+    country_code    VARCHAR(2)      NULL,
+    postal_code     VARCHAR(20)     NULL,
+    place_name      varchar(180)    NULL,
+    admin_name1     varchar(100)    NULL,
+    admin_code1     varchar(20)     NULL,
+    admin_name2     varchar(100)    NULL,
+    admin_code2     varchar(20)     NULL,
+    admin_name3     varchar(100)    NULL,
+    admin_code3     varchar(20)     NULL,
+    latitude        REAL            NULL,
+    longitude       REAL            NULL,
+    accuracy        CHAR(1)         NULL
+);
+
+DROP TABLE IF EXISTS public.zipcode_gb CASCADE;
+
+CREATE TABLE IF NOT EXISTS public.zipcode_gb
 (
     country_code    VARCHAR(2)      NULL,
     postal_code     VARCHAR(20)     NULL,
