@@ -1,4 +1,6 @@
-#!/bin/bash -eux
+#!/bin/bash
+
+set -u
 
 echo "Creating repository [${REPO_NAME}]"
 aws ecr create-repository \
@@ -9,7 +11,10 @@ aws ecr create-repository \
 declare REGISTRY_ID=$(aws ecr describe-registry | jq -r .registryId)
 
 echo "Authentiating Docker to [${REGISTRY_ID}]"
-aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${REGISTRY_ID}.dkr.ecr.${REGION}.amazonaws.com
+aws ecr get-login-password --region ${REGION} | \
+    docker login \
+        --username AWS \
+        --password-stdin ${REGISTRY_ID}.dkr.ecr.${REGION}.amazonaws.com
 
 echo "Tagging image [${IMAGE}]"
 docker tag ${IMAGE}:${VERSION} ${REGISTRY_ID}.dkr.ecr.${REGION}.amazonaws.com/${REPO_NAME}:${VERSION}

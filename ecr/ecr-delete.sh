@@ -1,4 +1,6 @@
-#!/bin/bash -eux
+#!/bin/bash 
+
+set -u
 
 declare REGISTRY_ID=$(aws ecr describe-registry | jq -r .registryId)
 

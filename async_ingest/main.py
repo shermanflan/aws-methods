@@ -28,19 +28,8 @@ rs_engine = create_engine(redshift_db_url, echo=False)
 pg_engine = create_engine(postgres_db_url, echo=False)
 
 
-def test_algo(nums, target):
-
-    memo = [[False]*(target + 1) for _ in range(len(nums) + 1)]
-    memo[0][0] = True
-
-    for i, num in enumerate(nums, 1):
-        for psum in range(target + 1):
-            if memo[i - 1][psum]:
-                memo[i][psum] = True
-            elif psum - num >= 0 and memo[i - 1][psum - num]:
-                memo[i][psum] = True
-
-    return memo[-1][-1]
+def test_algo(S, pos):
+    pass
 
 
 def main():
@@ -61,4 +50,4 @@ def main():
 if __name__ == "__main__":
 
     main()
-    # print(test_algo([1, 3, 9, 2], 16))
+    # print(test_algo("banana", len("banana")-1))
