@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -u
-
 # Clean up
 echo "Deleting cluster ${EKS_CLUSTER_NAME}"
 eksctl delete cluster \

@@ -1,0 +1,29 @@
+{
+    "name": "rko-hello-world-01", 
+    "releaseLabel": "emr-6.2.0-latest", 
+    "jobDriver": {
+        "sparkSubmitJobDriver": {
+            "entryPoint": "local:///usr/lib/spark/examples/src/main/python/pi.py",
+            "sparkSubmitParameters": "--conf spark.executor.instances=2 --conf spark.executor.memory=2G --conf spark.executor.cores=2 --conf spark.driver.cores=1"
+        }
+    }, 
+    "configurationOverrides": {
+        "applicationConfiguration": [{
+            "classification": "spark-defaults", 
+            "properties": {
+                "spark.driver.memory":"2G"
+            }
+        }
+    ], 
+    "monitoringConfiguration": {
+        "persistentAppUI": "ENABLED", 
+            "cloudWatchMonitoringConfiguration": {
+                "logGroupName": "rko_spark_01", 
+                "logStreamNamePrefix": "pi-hello-world"
+            }, 
+            "s3MonitoringConfiguration": {
+                "logUri": "s3://r5o-spark-logs"
+            }
+        }
+    }
+}
