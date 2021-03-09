@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -u
+set -o nounset
 
 echo "Creating Azure file shares secret for ${AZ_STORAGE_ACCOUNT_NAME}"
 kubectl create secret generic \
@@ -10,3 +10,4 @@ kubectl create secret generic \
     --from-literal=azurestorageaccountkey=${AZ_STORAGE_ACCOUNT_KEY}
 
 # NOTE: ECR access granted by default when using eksctl
+set +o nounset

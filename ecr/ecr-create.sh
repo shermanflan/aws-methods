@@ -1,11 +1,11 @@
 #!/bin/bash
 
-set -u
+set -o nounset
 
 echo "Creating repository [${REPO_NAME}]"
 aws ecr create-repository \
     --repository-name ${REPO_NAME} \
-    --image-scanning-configuration scanOnPush=true
+    --image-scanning-configuration scanOnPush=false
     # --generate-cli-skeleton
 
 declare REGISTRY_ID=$(aws ecr describe-registry | jq -r .registryId)
@@ -31,3 +31,5 @@ aws ecr list-images \
 
 echo "Pulling image [${REGISTRY_ID}.dkr.ecr.${REGION}.amazonaws.com/${REPO_NAME}:${VERSION}]"
 docker pull ${REGISTRY_ID}.dkr.ecr.${REGION}.amazonaws.com/${REPO_NAME}:${VERSION}
+
+set +o nounset
