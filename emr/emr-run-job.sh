@@ -1,7 +1,7 @@
 #!/bin/bash
 
 declare START_TIME=$(date +%s)
-declare VCLUSTER_ID=$(aws emr-containers list-virtual-clusters | jq -r .virtualClusters[0].id)
+declare VCLUSTER_ID=$(aws emr-containers list-virtual-clusters | jq .virtualClusters | jq '.[] | select(.state == "RUNNING")' | jq -r .id)
 declare EXECUTION_ROLE_ARN=$(aws iam get-role --role-name ${EMR_EXECUTION_ROLE_NAME} | jq -r .Role.Arn)
 
 # Reference https://docs.aws.amazon.com/emr/latest/EMR-on-EKS-DevelopmentGuide/emr-eks-jobs-CLI.html

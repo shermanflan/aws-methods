@@ -99,8 +99,8 @@ aws emr-containers update-role-trust-policy \
   --namespace "${EMR_ON_EKS_NAMESPACE}" \
   --role-name emr-job-execution-role
 
-echo "Create fargate profile for pods in ${EMR_ON_EKS_NAMESPACE}"
-eksctl create fargateprofile \
-  --cluster "${EKS_CLUSTER_NAME}" \
-  --name "${EMR_FARGATE_PROFILE}" \
-  --namespace "${EMR_ON_EKS_NAMESPACE}"  
+# echo "Create fargate profile for pods in ${EMR_ON_EKS_NAMESPACE}"
+# eksctl create fargateprofile \
+#   --cluster "${EKS_CLUSTER_NAME}" \
+#   --name "${EMR_FARGATE_PROFILE}" \
+#   --namespace "${EMR_ON_EKS_NAMESPACE}"  
