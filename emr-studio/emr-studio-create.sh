@@ -8,6 +8,6 @@ aws emr-containers create-managed-endpoint \
     --type JUPYTER_ENTERPRISE_GATEWAY \
     --virtual-cluster-id ${VCLUSTER_ID} \
     --name ${EMR_ENDPOINT_NAME} \
-    --execution-role-arn "arn:aws:iam::517533378855:policy/emr-job-execution-policy" \
+    --execution-role-arn ${EMR_EXECUTION_ROLE_ARN} \
     --release-label emr-6.2.0-latest
-    --certificate-arn "arn:aws:acm:us-east-2:517533378855:certificate/f4dbd279-06da-43fd-ac63-aa76c188f663"
+    --certificate-arn ${EMR_STUDIO_CA_ARN}
