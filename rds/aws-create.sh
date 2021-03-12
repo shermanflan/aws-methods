@@ -1,21 +1,14 @@
 #!/bin/bash -eux
 
-aws rds create-db-instance \
-    --db-name ${DB_NAME} \
-    --db-instance-identifier ${PG_INSTANCE} \
-    --db-instance-class db.t3.micro \
-    --engine postgres \
-    --master-username ${PG_USER} \
-    --master-user-password ${PG_PASSWORD} \
-    --allocated-storage 20 \
-    --publicly-accessible
-
-psql --username=${PG_USER} \
-    --password \
-    --host=${PG_INSTANCE_FQDN} \
-    --dbname=${DB_NAME} \
-    --port=5432 \
-    --command="CREATE EXTENSION aws_s3 CASCADE;"
+# aws rds create-db-instance \
+#     --db-name ${DB_NAME} \
+#     --db-instance-identifier ${PG_INSTANCE} \
+#     --db-instance-class db.t3.micro \
+#     --engine postgres \
+#     --master-username ${PG_USER} \
+#     --master-user-password ${PG_PASSWORD} \
+#     --allocated-storage 20 \
+#     --publicly-accessible
 
 # Clean up
 # aws iam delete-role --role-name rds-s3-import-role
@@ -71,7 +64,26 @@ psql --username=${PG_USER} \
 #    --policy-arn arn:aws:iam::517533378855:policy/rds-s3-import-policy \
 #    --role-name rds-s3-import-role
 
-# TODO: Wait for rds instance
+declare -i max_tries=10
+declare DB_READY=$(aws rds describe-db-instances --db-instance-identifier ${PG_INSTANCE} | jq -r .DBInstances[0].DBInstanceStatus)
+
+while [[ ${DB_READY} != "available" && ${max_tries} -gt 0 ]]
+    do
+
+    echo "${DB_READY}: Waiting for ${PG_INSTANCE} (${max_tries})"
+    sleep 5
+
+    DB_READY=$(aws rds describe-db-instances --db-instance-identifier ${PG_INSTANCE} | jq -r .DBInstances[0].DBInstanceStatus)
+    ((max_tries = max_tries - 1))
+done
+
+psql --username=${PG_USER} \
+    --password \
+    --host=${PG_INSTANCE_FQDN} \
+    --dbname=${DB_NAME} \
+    --port=5432 \
+    --command="CREATE EXTENSION aws_s3 CASCADE;"
+
 echo "Add role to RDS instance"
 aws rds add-role-to-db-instance \
    --db-instance-identifier ${PG_INSTANCE} \

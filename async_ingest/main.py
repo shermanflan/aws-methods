@@ -28,8 +28,32 @@ rs_engine = create_engine(redshift_db_url, echo=False)
 pg_engine = create_engine(postgres_db_url, echo=False)
 
 
-def test_algo(S, pos):
-    pass
+def test_algo(s: str) -> int:
+    memo = [[0]*len(s) for _ in range(len(s))]
+    max_len = 0
+
+    for d in range(len(s)):
+        memo[d][d] = 1
+
+    col = 1
+    while col < len(s):
+
+        row = 0
+        while row + col < len(s):
+
+            if s[row] == s[row + col] and col == 1:
+                memo[row][row + col] = 2
+            elif s[row] == s[row + col]:
+                memo[row][row + col] = memo[row + 1][row + col - 1] + 2
+            else:
+                memo[row][row + col] = max(memo[row][row + col - 1], memo[row + 1][row + col])
+
+            max_len = max(max_len, memo[row][row + col])
+            row += 1
+        col += 1
+
+    print(memo)
+    return max_len
 
 
 def main():
@@ -50,4 +74,4 @@ def main():
 if __name__ == "__main__":
 
     main()
-    # print(test_algo("banana", len("banana")-1))
+    # print(test_algo('LPASPAL'))
