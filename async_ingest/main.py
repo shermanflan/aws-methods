@@ -5,12 +5,13 @@ import logging
 import os
 import time
 
+import boto3
 from sqlalchemy import create_engine
 
-from ingest import acquire_sync, acquire_async
+from ingest.etl import acquire_sync, acquire_async
 
 logging.basicConfig(format='%(asctime)s %(levelname)s [%(name)s]: %(message)s',
-                    datefmt='%Y-%m-%d %I:%M:%S %p', level=logging.DEBUG)
+                    datefmt='%Y-%m-%d %I:%M:%S %p', level=logging.INFO)
 
 logger = logging.getLogger(__name__)
 redshift_db_url = os.environ.get('REDSHIFT_DB_URL')
@@ -26,52 +27,66 @@ not per-object or per-function call.
 """
 rs_engine = create_engine(redshift_db_url, echo=False)
 pg_engine = create_engine(postgres_db_url, echo=False)
+s3_client = boto3.client('s3')
 
 
-def test_algo(s: str) -> int:
-    memo = [[0]*len(s) for _ in range(len(s))]
-    max_len = 0
+def test_algo(arr: [int]) -> int:
+    memo = [[n] for n in arr]
+    max_len, max_index = 1, 0
 
-    for d in range(len(s)):
-        memo[d][d] = 1
+    for i in range(1, len(arr)):
+        if arr[i] > memo[i-1][-1]:
+            memo[i] = memo[i-1].copy()
+            memo[i].append(arr[i])
+        else:
+            prev = i - 2
+            while prev >= 0 and arr[i] <= memo[prev][-1]:
+                prev -= 1
 
-    col = 1
-    while col < len(s):
+            if prev >= 0:
+                memo[i] = memo[prev].copy()
+                memo[i].append(arr[i])
 
-        row = 0
-        while row + col < len(s):
-
-            if s[row] == s[row + col] and col == 1:
-                memo[row][row + col] = 2
-            elif s[row] == s[row + col]:
-                memo[row][row + col] = memo[row + 1][row + col - 1] + 2
-            else:
-                memo[row][row + col] = max(memo[row][row + col - 1], memo[row + 1][row + col])
-
-            max_len = max(max_len, memo[row][row + col])
-            row += 1
-        col += 1
+        if len(memo[i]) > max_len:
+            max_index = i
 
     print(memo)
-    return max_len
+    return memo[max_index]
 
 
 def main():
 
     start = datetime.now()
 
-    acquire_sync(rs_engine, pg_engine)
+    acquire_sync(rs_engine, pg_engine, s3_client)
 
     logger.info(f"Total sync elapsed: {datetime.now() - start}")
 
     start = datetime.now()
 
-    asyncio.run(acquire_async(rs_engine, pg_engine))
+    asyncio.run(acquire_async(rs_engine, pg_engine, s3_client))
 
     logger.info(f"Total async elapsed: {datetime.now() - start}")
 
 
 if __name__ == "__main__":
 
+    # s3 = boto3.resource('s3')
+    # for bucket in s3.buckets.all():
+    #     logger.info(bucket.name)
+
+    # s3_client = boto3.client('s3')
+    # buckets = s3_client.list_buckets()['Buckets']
+    # for bucket in buckets:
+    #     logger.info(f"Listing objects in {bucket['Name']}")
+    #
+    #     exports = s3_client.list_objects_v2(
+    #         Bucket=bucket['Name'],
+    #         Prefix='th'
+    #     )
+    #
+    #     for part in exports.get('Contents', []):
+    #         logger.info(f"{part['Key']}")
+
     main()
-    # print(test_algo('LPASPAL'))
+    # print(test_algo([3, 1, 5, 2, 6, 4, 9]))
