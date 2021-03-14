@@ -1,6 +1,5 @@
 boto3==1.17.27
-jupyter==1.0.0
+click==7.1.2
 psycopg2-binary==2.8.6
 #psycopg2==2.8.6
-Pygments==2.6.1
 SQLAlchemy==1.3.23

@@ -1,29 +1,10 @@
 version: "3.8"
 services:
-#  pgsql-jupyter-lib:
-#      image: postgres:12
-#      ports:
-#          - "5432:5432"
-#      environment:
-#          - POSTGRES_USER=sa
-#          - POSTGRES_PASSWORD=pwd
-#          - POSTGRES_DB=PyscoDB
   async-ingest:
     image: async-ingest
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - 8888:8888
-    # command: "jupyter notebook --ip 0.0.0.0 --no-browser --allow-root --NotebookApp.token=''"
-#    depends_on:
-#      - sql-jupyter-lib
     env_file: .env
     environment:
       - LOG_LEVEL=DEBUG
-      - POSTGRES_HOST=pgsql-jupyter-lib
-      - POSTGRES_DB=PyscoDB
-      - POSTGRES_USER=sa
-    # volumes:
-    #   - ./condesa:/opt/jupyter-lib/condesa
-    # network_mode: "host"

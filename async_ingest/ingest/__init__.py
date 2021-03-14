@@ -2,6 +2,8 @@ from datetime import date
 import os
 
 IAM_REDSHIFT = os.environ.get('IAM_REDSHIFT')
+REDSHIFT_DB_URL = os.environ.get('REDSHIFT_DB_URL')
+POSTGRES_DB_URL = os.environ.get('POSTGRES_DB_URL')
 
 UNLOAD_SQL = """
 UNLOAD (:sql)
