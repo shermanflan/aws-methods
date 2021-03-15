@@ -60,10 +60,10 @@ async def _acquire_async(source, target, lake, table: str, sql: str,
 def acquire_sync(source, target, lake) -> None:
 
     for table_config in ETL_MAPPING[:]:
-        _acquire(source, target, lake, **table_config)
+        _acquire_sync(source, target, lake, **table_config)
 
 
-def _acquire(source, target, lake, table: str, sql: str, lake_path: str) -> None:
+def _acquire_sync(source, target, lake, table: str, sql: str, lake_path: str) -> None:
 
     unloader(source, sql, lake_path)
 
@@ -88,7 +88,6 @@ def _acquire(source, target, lake, table: str, sql: str, lake_path: str) -> None
                )
 
 
-# TODO: Add tenacity retries
 def unloader(db, sql: str, lake_path: str) -> None:
     """
     Try to do the majority of processing at the source. If views cannot be
@@ -101,10 +100,11 @@ def unloader(db, sql: str, lake_path: str) -> None:
     os.fork or Python multiprocessing, it’s important that the engine is
     initialized per process.
 
-    TODO: See Using Connection Pools with Multiprocessing or os.fork() for
-    details.
-    TODO: Compare performance with session API
+    TODO:
+    - See Using Connection Pools with Multiprocessing or os.fork() for details.
+    - Compare performance with session API
     https://docs.sqlalchemy.org/en/13/orm/session_basics.html
+    - Add tenacity retries
 
     :param db:
     :param sql:
@@ -124,8 +124,17 @@ def unloader(db, sql: str, lake_path: str) -> None:
     ))
 
 
-# TODO: Add tenacity retries
 def loader(db, table: str, bucket: str, lake_path: str) -> None:
+    """
+    TODO:
+    - Add tenacity retries
+
+    :param db:
+    :param table:
+    :param bucket:
+    :param lake_path:
+    :return:
+    """
     start = datetime.now()
     logger.info(f"Loader for {table} started at {start}")
 

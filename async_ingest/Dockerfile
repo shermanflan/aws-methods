@@ -11,7 +11,6 @@ RUN pip3 --no-cache-dir install -r ${APP_HOME}/requirements.txt \
     && rm /${APP_HOME}/requirements.txt
 
 COPY --chown=async-ingest:async-ingest ./ingest ${APP_HOME}/ingest
-# COPY --chown=async-ingest:async-ingest ./aws_config ${APP_HOME}/.aws
 COPY --chown=async-ingest:async-ingest ./main.py ${APP_HOME}
 
 USER async-ingest
