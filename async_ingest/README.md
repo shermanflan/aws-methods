@@ -1,10 +1,10 @@
-#Bulk Data Extraction/Import
+# Bulk Data Extraction/Import
 This repo demonstrates a possible approach for bulk extraction of data 
 from Redshift intto a postgres database using native AWS-features. In 
 order to reduce time spent on blocking I/O, the `asyncio` library is used
 when invoking these features from Python.
 
-##Bulk Export from Redshift
+## Bulk Export from Redshift
 Redshift supports the [`UNLOAD`](https://docs.aws.amazon.com/redshift/latest/dg/r_UNLOAD.html) 
 operator which allows export of any SQL statement to S3. Multiple file 
 formats are supported, including Parquet, as well as various compression 
@@ -23,7 +23,7 @@ DELIMITER AS '\t'
 MANIFEST ALLOWOVERWRITE
 ```
 
-###Security Considerations
+### Security Considerations
 In order to use the `UNLOAD` operator, an IAM policy needs to be defined 
 with write access to the specified S3 bucket. This policy then needs to be
 associated to an IAM role for Redshift. A sample policy and role is shown
@@ -70,7 +70,7 @@ aws iam create-role \
     }'
 ```
 
-##Postgresql (RDS) Bulk Import
+## Postgresql (RDS) Bulk Import
 Similarly, postgresql on AWS RDS supports the 
 [`aws_s3.table_import_from_s3`](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/PostgreSQL.Procedural.Importing.html#USER_PostgreSQL.S3Import),
 function which can be used to bulk import from an S3 location. At this 
@@ -93,7 +93,7 @@ SELECT aws_s3.table_import_from_s3(
 );
 ```
 
-###Configuration
+### Configuration
 In order to use the `aws_s3.table_import_from_s3` function, the following
 extension needs to be installed on the RDS instance.
 
@@ -106,7 +106,7 @@ psql --username=${PG_USER} \
     --command="CREATE EXTENSION aws_s3 CASCADE;"
 ```
 
-###Security Considerations
+### Security Considerations
 Similarly, an IAM policy and role needs to be created for the postgresql
 instance granting it permission to read from the respective S3 bucket(s).
 
@@ -154,7 +154,7 @@ aws iam create-role \
    }'
 ```
 
-##Asynchronous IO
+## Asynchronous IO
 Finally, in order to support higher throughput given the nature of these
 synchronous export/import invocations, the [`asyncio`](https://docs.python.org/3/library/asyncio.html)
 library is used to spawn additional non-blocking threads as needed. Initial 
