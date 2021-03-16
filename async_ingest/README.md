@@ -192,3 +192,7 @@ async def _acquire_async(source, target, lake, table: str, sql: str,
 
     await asyncio.gather(*load_tasks)
 ```
+
+### Technical Requirements
+In order to use the `aysncio.gather` and `asyncio.to_thread` routines, 
+Python 3.9.2 is required.
