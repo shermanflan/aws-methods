@@ -1,4 +1,4 @@
-#!/bin/bash -eux
+#!/bin/bash -u
 
 aws rds create-db-instance \
     --db-name ${DB_NAME} \

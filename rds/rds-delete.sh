@@ -1,4 +1,4 @@
-#!/bin/bash -eux
+#!/bin/bash -u
 
 aws rds delete-db-instance \
     --db-instance-identifier ${PG_INSTANCE} \
