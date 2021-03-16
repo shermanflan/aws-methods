@@ -1,6 +1,6 @@
 # Bulk Data Extraction/Import
 This repo demonstrates a possible approach for bulk extraction of data 
-from Redshift intto a postgres database using native AWS-features. In 
+from Redshift into a postgres database using native AWS-features. In 
 order to reduce time spent on blocking I/O, the `asyncio` library is used
 when invoking these features from Python.
 
@@ -195,4 +195,4 @@ async def _acquire_async(source, target, lake, table: str, sql: str,
 
 ### Technical Requirements
 In order to use the `aysncio.gather` and `asyncio.to_thread` routines, 
-Python 3.9.2 is required.
+Python 3.9+ is required.

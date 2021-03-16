@@ -1,4 +1,6 @@
-#!/bin/bash -eux
+#!/bin/bash
+
+set -o nounset
 
 echo "Create Redshift access to S3 policies"
 # "arn:aws:iam::517533378855:policy/redshift-s3-read-policy"
@@ -76,3 +78,5 @@ echo "Add role to Redshift instance"
 aws redshift modify-cluster-iam-roles \
   --cluster-identifier "${REDSHIFT_INSTANCE}" \
   --add-iam-roles "arn:aws:iam::517533378855:role/redshift-s3-read-write-role"
+
+set +o nounset

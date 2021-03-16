@@ -1,4 +1,6 @@
-#!/bin/bash -u
+#!/bin/bash
+
+set -o nounset
 
 aws rds create-db-instance \
     --db-name ${DB_NAME} \
@@ -100,3 +102,5 @@ aws rds add-role-to-db-instance \
    --feature-name s3Import \
    --role-arn arn:aws:iam::517533378855:role/rds-s3-import-role \
    --region us-east-2
+
+set +o nounset

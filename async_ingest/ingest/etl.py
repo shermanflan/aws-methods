@@ -139,7 +139,6 @@ def loader(db, table: str, bucket: str, lake_path: str) -> None:
     logger.info(f"Loader for {table} started at {start}")
 
     with db.connect().execution_options(autocommit=True) as con:
-        con.execute(f"TRUNCATE TABLE {table}")
         con.execute(text(LOAD_SQL), table=table, bucket=bucket,
                     path=lake_path)
 
