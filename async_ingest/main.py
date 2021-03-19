@@ -25,26 +25,25 @@ not per-object or per-function call.
 
 
 def test_algo(s1: str, s2: str) -> int:
-    memo = [[0]*(len(s2)+1) for _ in range(len(s1)+1)]
-    max_str = ''
-    max_len = 0
+    memo = [[0]*(len(s2) + 1) for _ in range(len(s1) + 1)]
 
     for i1 in range(1, len(s1) + 1):
         for i2 in range(1, len(s2) + 1):
-            if s1[i1 - 1] == s2[i2 - 1]:
-                memo[i1][i2] = 1 + max(memo[i1 - 1][i2 - 1],
-                                       memo[i1][i2 - 1],
-                                       memo[i1 - 1][i2])
+            if i1 == 0:
+                memo[i1][i2] = i2
+            elif i2 == 0:
+                memo[i1][i2] = i1
+            elif s1[i1 - 1] == s2[i2 - 1]:
+                memo[i1][i2] = memo[i1 - 1][i2 - 1]  # same
             else:
-                memo[i1][i2] = max(memo[i1 - 1][i2 - 1],
-                                   memo[i1][i2 - 1],
-                                   memo[i1 - 1][i2])
+                memo[i1][i2] = 1 + min(memo[i1 - 1][i2 - 1],  # same
+                                       memo[i1 - 1][i2],  # delete s1
+                                       memo[i1][i2 - 1]  # insert s1
+                                       )
 
-            if memo[i1][i2] > max_len:
-                max_len = memo[i1][i2]
-                max_str = s1[i1:i2+1]
+    print(memo)
 
-    return max_len, max_str
+    return memo[-1][-1]
 
 
 @click.command()
@@ -75,5 +74,5 @@ def main(asynchronous: bool) -> None:
 
 if __name__ == "__main__":
 
-    main()
-    # print(test_algo('ACBEA', 'ADCA'))
+    # main()
+    print(test_algo('evolution', 'extinction'))
