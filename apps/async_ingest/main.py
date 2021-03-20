@@ -24,7 +24,7 @@ not per-object or per-function call.
 """
 
 
-def test_algo(s1: str, s2: str) -> int:
+def edit_distance(s1: str, s2: str) -> int:
     memo = [[0]*(len(s2) + 1) for _ in range(len(s1) + 1)]
 
     for i1 in range(1, len(s1) + 1):
@@ -41,9 +41,18 @@ def test_algo(s1: str, s2: str) -> int:
                                        memo[i1][i2 - 1]  # insert s1
                                        )
 
-    print(memo)
-
     return memo[-1][-1]
+
+
+def test_algo(n) -> int:
+    total, ones, zeros = 2, 1, 1
+    for bin_len in range(2, n + 1):
+        tmp_ones = zeros
+        zeros = ones + zeros
+        ones = tmp_ones
+        total = ones + zeros
+
+    return total
 
 
 @click.command()
@@ -75,4 +84,5 @@ def main(asynchronous: bool) -> None:
 if __name__ == "__main__":
 
     # main()
-    print(test_algo('evolution', 'extinction'))
+    print(test_algo(4))
+    print(test_algo(5))
