@@ -3,10 +3,12 @@
 import asyncio
 from datetime import datetime
 import logging
+from operator import add
 
 import boto3
 import click
-from sqlalchemy import create_engine
+from pyspark.sql import SparkSession
+# from sqlalchemy import create_engine
 
 logging.basicConfig(format='%(asctime)s %(levelname)s [%(name)s]: %(message)s',
                     datefmt='%Y-%m-%d %I:%M:%S %p', level=logging.INFO)
@@ -14,45 +16,32 @@ logging.basicConfig(format='%(asctime)s %(levelname)s [%(name)s]: %(message)s',
 logger = logging.getLogger(__name__)
 
 
-def edit_distance(s1: str, s2: str) -> int:
-    memo = [[0]*(len(s2) + 1) for _ in range(len(s1) + 1)]
-
-    for i1 in range(1, len(s1) + 1):
-        for i2 in range(1, len(s2) + 1):
-            if i1 == 0:
-                memo[i1][i2] = i2
-            elif i2 == 0:
-                memo[i1][i2] = i1
-            elif s1[i1 - 1] == s2[i2 - 1]:
-                memo[i1][i2] = memo[i1 - 1][i2 - 1]  # same
-            else:
-                memo[i1][i2] = 1 + min(memo[i1 - 1][i2 - 1],  # same
-                                       memo[i1 - 1][i2],  # delete s1
-                                       memo[i1][i2 - 1]  # insert s1
-                                       )
-
-    return memo[-1][-1]
-
-
-def test_algo(n) -> int:
-    total, ones, zeros = 2, 1, 1
-    for bin_len in range(2, n + 1):
-        tmp_ones = zeros
-        zeros = ones + zeros
-        ones = tmp_ones
-        total = ones + zeros
-
-    return total
-
-
 @click.command()
-@click.option('--asynchronous/--no-asynchronous', default=True,
-              show_default=True, help='Set/unset asynchronous behavior')
-def main(asynchronous: bool) -> None:
+@click.option('--filepath', required=True, help='The input file path')
+def main(filepath: str) -> None:
     """
+    Usage:
+    - From docker:
+    docker run --rm --name test_pyspark --network container:spark_ingest_spark_1 spark-ingest:latest
+    - From docker interactive:
+    docker run --rm -it --name test_pyspark --network container:spark_ingest_spark_1 spark-ingest:latest /bin/bash
     """
-    print(test_algo(4))
-    print(test_algo(5))
+    spark = (SparkSession
+             .builder
+             .appName("PythonWordCount")
+             .master('spark://spark:7077')
+             # .config(f"fs.azure.account.key.{STORAGE_ACCOUNT}.blob.core.windows.net", STORAGE_KEY)
+             .getOrCreate()
+             )
+    lines = spark.read.text(filepath).rdd.map(lambda r: r[0])
+    counts = lines.flatMap(lambda x: x.split(' ')) \
+                  .map(lambda x: (x, 1)) \
+                  .reduceByKey(add)
+    output = counts.collect()
+    for (word, count) in output:
+        print("%s: %i" % (word, count))
+
+    spark.stop()
 
 
 if __name__ == "__main__":
