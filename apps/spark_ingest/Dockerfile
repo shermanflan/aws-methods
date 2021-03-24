@@ -7,10 +7,16 @@
 # USER 1001
 
 # Working pyspark client container
-FROM openjdk:11-jre-slim
-COPY --from=python:3.6.13-slim / /
+# FROM openjdk:11-jre-slim
+# COPY --from=python:3.6.13-slim / /
 
-ENV APP_HOME=/opt/spark-ingest
+# Working spark 3.1.1 base container with Python bindings
+FROM spark-py:3.1.1
+
+# Reset to root to run installation tasks
+USER 0
+
+ENV APP_HOME=${SPARK_HOME}/spark-ingest
 ENV PATH=$PATH:${APP_HOME}
 
 RUN  useradd -ms /bin/bash -r -d ${APP_HOME} spark-ingest
@@ -30,4 +36,4 @@ WORKDIR ${APP_HOME}
 
 ENV PYTHONPATH=${APP_HOME}
 
-CMD ["python", "main.py", "--filepath", "./main.py"]
+CMD ["python3", "main.py", "--filepath", "./main.py"]

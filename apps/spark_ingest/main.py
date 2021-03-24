@@ -21,15 +21,15 @@ logger = logging.getLogger(__name__)
 def main(filepath: str) -> None:
     """
     Usage:
-    - From docker:
-    docker run --rm --name test_pyspark --network container:spark_ingest_spark_1 spark-ingest:latest
-    - From docker interactive:
+    - From docker interactive against bitnami docker-compose cluster:
     docker run --rm -it --name test_pyspark --network container:spark_ingest_spark_1 spark-ingest:latest /bin/bash
+    - From Spark 3.1.1 base container with Python bindings:
+    ./bin/spark-submit spark-ingest/main.py --filepath ./examples/src/main/python/pi.py
     """
     spark = (SparkSession
              .builder
              .appName("PythonWordCount")
-             .master('spark://spark:7077')
+             # .master('spark://spark:7077')
              # .config(f"fs.azure.account.key.{STORAGE_ACCOUNT}.blob.core.windows.net", STORAGE_KEY)
              .getOrCreate()
              )

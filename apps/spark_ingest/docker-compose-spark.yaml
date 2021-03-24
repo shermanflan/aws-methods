@@ -2,10 +2,6 @@ version: "3.8"
 services:
   spark:
     image: bitnami/spark:latest
-    # image: r5o-spark:1.0
-    # build:
-    #   context: .
-    #   dockerfile: Dockerfile
     environment:
       - SPARK_MODE=master
       - SPARK_RPC_AUTHENTICATION_ENABLED=no
