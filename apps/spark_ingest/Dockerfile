@@ -19,21 +19,19 @@ USER 0
 ENV APP_HOME=${SPARK_HOME}/spark-ingest
 ENV PATH=$PATH:${APP_HOME}
 
-RUN  useradd -ms /bin/bash -r -d ${APP_HOME} spark-ingest
-
 COPY requirements.txt ${APP_HOME}/requirements.txt
 
 RUN pip install --upgrade pip wheel setuptools \
     && pip --no-cache-dir install -r ${APP_HOME}/requirements.txt \
     && rm /${APP_HOME}/requirements.txt
 
-COPY --chown=spark-ingest:spark-ingest ./ingest ${APP_HOME}/ingest
-COPY --chown=spark-ingest:spark-ingest ./main.py ${APP_HOME}
-
-USER spark-ingest
-
-WORKDIR ${APP_HOME}
-
+COPY ./ingest ${APP_HOME}/ingest
+COPY ./main.py ${APP_HOME}
 ENV PYTHONPATH=${APP_HOME}
 
-CMD ["python3", "main.py", "--filepath", "./main.py"]
+WORKDIR ${SPARK_HOME}/work-dir
+ENTRYPOINT [ "/opt/entrypoint.sh" ]
+
+# Specify the User that the actual main process will run as
+ARG spark_uid=185
+USER ${spark_uid}
