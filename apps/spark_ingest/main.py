@@ -24,6 +24,7 @@ def main(filepath: str) -> None:
     - From docker interactive against bitnami docker-compose cluster:
     docker run --rm -it --name test_pyspark --network container:spark_ingest_spark_1 spark-ingest:latest /bin/bash
     - From Spark 3.1.1 base container with Python bindings:
+    docker run --rm -it --name test_pyspark spark-ingest:latest /bin/bash
     ./bin/spark-submit spark-ingest/main.py --filepath ./examples/src/main/python/pi.py
     """
     spark = (SparkSession

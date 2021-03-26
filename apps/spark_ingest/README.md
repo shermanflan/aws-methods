@@ -29,3 +29,13 @@ can be found from the Spark [distribution](https://spark.apache.org/downloads.ht
 - The service account credentials used by the driver pods must be allowed 
   to create pods, services and configmaps.
 - 
+
+# Smoke Tests
+- Run SparkPi
+```shell
+./bin/run-example SparkPi 10
+```
+- Run pi.py
+```shell
+./bin/spark-submit examples/src/main/python/pi.py 10
+```

@@ -5,6 +5,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    command: [
+      "/bin/sh",
+      "-c",
+      "/opt/spark/bin/spark-submit \
+      --class org.apache.spark.examples.SparkPi \
+      local:///opt/spark/examples/jars/spark-examples_2.12-3.1.1.jar 10"
+    ]
     env_file: .env
     environment:
       - LOG_LEVEL=DEBUG
