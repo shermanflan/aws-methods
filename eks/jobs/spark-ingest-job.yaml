@@ -1,0 +1,35 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: spark-ingest-job
+  namespace: default
+  labels:
+    name: spark-ingest-job
+    instance: spark-ingest-job
+    version: "1.0.0"
+    component: batch
+    part-of: jobs
+spec:
+  template:
+    spec:
+      restartPolicy: Never  # Always
+      serviceAccountName: spark
+      containers:
+        - name: spark-ingest-job
+          image: 517533378855.dkr.ecr.us-east-2.amazonaws.com/spark-py:3.1.1
+          imagePullPolicy: Always  # IfNotPresent
+          command: [
+            "/bin/sh",
+            "-c",
+            "/opt/spark/bin/spark-submit \
+            --master k8s://https://26FD9B8C38BCA9A072FF36F6513D3303.gr7.us-east-2.eks.amazonaws.com:443 \
+            --deploy-mode cluster \
+            --name spark-ingest \
+            --conf spark.executor.instances=2 \
+            --conf spark.kubernetes.container.image=517533378855.dkr.ecr.us-east-2.amazonaws.com/spark-ingest:latest \
+            --conf spark.kubernetes.authenticate.driver.serviceAccountName=spark \
+            --conf spark.jars.ivy=/tmp/.ivy \
+            local:///opt/spark/spark-ingest/main.py"
+          ]
+  backoffLimit: 2
+

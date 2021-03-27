@@ -16,10 +16,11 @@ spec:
     - name: spark-ingest-local
       image: 517533378855.dkr.ecr.us-east-2.amazonaws.com/spark-py:3.1.1
       imagePullPolicy: Always  # IfNotPresent
-      command: [
+      args: [
         "/bin/sh",
         "-c",
         "/opt/spark/bin/spark-submit \
         --class org.apache.spark.examples.SparkPi \
+        --conf spark.jars.ivy=/tmp/.ivy \
         local:///opt/spark/examples/jars/spark-examples_2.12-3.1.1.jar 10"
       ]

@@ -10,6 +10,8 @@ nodeGroups:
   - name: ng-1
     instanceType: m5.xlarge
     desiredCapacity: 2
+    privateNetworking: true
+    amiFamily: Ubuntu2004
     volumeSize: 40
     iam:
       attachPolicyARNs:
