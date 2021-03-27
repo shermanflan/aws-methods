@@ -7,7 +7,7 @@ declare START_TIME=$(date +%s)
 echo "Creating cluster ${EKS_CLUSTER_NAME} in ${EKS_REGION}"
 
 # NOTE: EMR Studio does not currently support Amazon EMR on EKS when you use
-an AWS Fargate-only Amazon EKS cluster.
+# an AWS Fargate-only Amazon EKS cluster.
 eksctl create cluster \
     --name="${EKS_CLUSTER_NAME}" \
     --region="${EKS_REGION}" \
