@@ -1,4 +1,4 @@
-# Working pyspark worker container
+# Bitnami version
 # FROM bitnami/spark:latest
 # USER root
 # COPY requirements.txt /opt/spark-ingest/requirements.txt
@@ -6,11 +6,8 @@
 #     && rm /opt/spark-ingest/requirements.txt
 # USER 1001
 
-# Working pyspark client container
-# FROM openjdk:11-jre-slim
-# COPY --from=python:3.6.13-slim / /
-
-# Working spark 3.1.1 base container with Python bindings
+# Standard spark 3.1.1 base container with Python bindings
+# Usage: docker build -t spark-ingest:latest --no-cache .
 FROM spark-py:3.1.1
 
 # Reset to root to run installation tasks

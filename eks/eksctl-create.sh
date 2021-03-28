@@ -20,7 +20,7 @@ eksctl create cluster \
 
 #    --with-oidc
 
-# OR:
+# OR: Inspired by https://github.com/aws-samples/amazon-eks-apache-spark-etl-sample/blob/master/example/eksctl.yaml
 # eksctl create cluster \
 #     --config-file=./cluster_config/spark-cluster.yaml
 

@@ -21,14 +21,24 @@ can be found from the Spark [distribution](https://spark.apache.org/downloads.ht
   -p ./kubernetes/dockerfiles/spark/bindings/python/Dockerfile build
 ```
 3. Bundle a Python application image with specific dependencies based on 
-   the base container. This will be used to run the spark-submit job in k8s.
-   See the [Dockerfile](./Dockerfile) for reference.
+   the base container. This will be used to run the spark-submit job in 
+   k8s. See the [Dockerfile](./Dockerfile) for reference.
 
 # Technical Pre-requisites
 
 - The service account credentials used by the driver pods must be allowed 
   to create pods, services and configmaps.
-- 
+
+# AWS Idiosyncrasies
+This [reference](https://stackoverflow.com/a/66657993) was invaluable in
+getting my Spark 3.1.1 on EKS cluster working.
+
+- In order to successfully submit a spark job on AWS EMR on EKS, the 
+  spark-submit parameters should use the `args` stanza instead of `command`
+  as the former will route the command through the `entrypoint.sh`. 
+- In addition, a config of `spark.jars.ivy=/tmp/.ivy` needs to be supplied
+  in the spark-submit parameters.
+- See [spark-ingest.yaml](../../eks/pods/spark-ingest.yaml) for a reference. 
 
 # Smoke Tests
 - Run SparkPi
