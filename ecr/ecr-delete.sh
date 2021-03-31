@@ -14,9 +14,9 @@ aws ecr delete-repository \
     --repository-name ${PYSPARK_APP_IMAGE} \
     --force
 
-echo "Removing tagged image [${PYSPARK_IMAGE}]"
-docker image rm \
-    ${REGISTRY_ID}.dkr.ecr.${REGION}.amazonaws.com/${PYSPARK_IMAGE}:${PYSPARK_IMAGE_VERSION}
+# echo "Removing tagged image [${PYSPARK_IMAGE}]"
+# docker image rm \
+#     ${REGISTRY_ID}.dkr.ecr.${REGION}.amazonaws.com/${PYSPARK_IMAGE}:${PYSPARK_IMAGE_VERSION}
 
 echo "Removing tagged image [${PYSPARK_APP_IMAGE}]"
 docker image rm \

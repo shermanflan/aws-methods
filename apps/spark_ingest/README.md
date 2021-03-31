@@ -31,7 +31,7 @@ can be found from the Spark [distribution](https://spark.apache.org/downloads.ht
 
 # AWS Idiosyncrasies
 This [reference](https://stackoverflow.com/a/66657993) was invaluable in
-getting my Spark 3.1.1 on EKS cluster working.
+getting Spark 3.1.1 on an EKS cluster working.
 
 - In order to successfully submit a spark job on AWS EMR on EKS, the 
   spark-submit parameters should use the `args` stanza instead of `command`

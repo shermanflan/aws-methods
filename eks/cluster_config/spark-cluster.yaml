@@ -17,3 +17,4 @@ nodeGroups:
       attachPolicyARNs:
         - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
         - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+        - arn:aws:iam::517533378855:policy/emr-job-execution-policy

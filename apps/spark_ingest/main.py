@@ -34,13 +34,20 @@ def main(filepath: str) -> None:
              # .config(f"fs.azure.account.key.{STORAGE_ACCOUNT}.blob.core.windows.net", STORAGE_KEY)
              .getOrCreate()
              )
-    lines = spark.read.text(filepath).rdd.map(lambda r: r[0])
-    counts = lines.flatMap(lambda x: x.split(' ')) \
-                  .map(lambda x: (x, 1)) \
-                  .reduceByKey(add)
+
+    lines = (spark.
+             read.
+             text(filepath).rdd.map(lambda r: r[0])
+             )
+    counts = (lines.
+              flatMap(lambda x: x.split(' ')).
+              map(lambda x: (x, 1)).
+              reduceByKey(add)
+              )
     output = counts.collect()
+
     for (word, count) in output:
-        print("%s: %i" % (word, count))
+        logger.info(f"Word! {word}: {count}")
 
     spark.stop()
 
