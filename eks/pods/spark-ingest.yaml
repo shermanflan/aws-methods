@@ -20,7 +20,7 @@ spec:
         "/bin/sh",
         "-c",
         "/opt/spark/bin/spark-submit \
-        --master k8s://https://D1058D7BD41578B8527DB8E6BB20C716.gr7.us-east-2.eks.amazonaws.com:443 \
+        --master k8s://https://CFBBAB5E00CE997A91FD667439C0453C.yl4.us-east-2.eks.amazonaws.com:443 \
         --deploy-mode cluster \
         --name spark-ingest \
         --conf spark.executor.instances=2 \
@@ -31,5 +31,5 @@ spec:
         --conf spark.kubernetes.executor.deleteOnTermination=false \
         --conf spark.jars.ivy=/tmp/.ivy \
         local:///opt/spark/spark-ingest/main.py \
-        --filepath /opt/spark/spark-ingest/main.py"
+        --filepath s3a://bangkok/mnm_dataset.csv"
       ]

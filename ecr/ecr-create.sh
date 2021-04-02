@@ -20,9 +20,9 @@ aws ecr get-login-password --region ${REGION} | \
         --username AWS \
         --password-stdin ${REGISTRY_ID}.dkr.ecr.${REGION}.amazonaws.com
 
-# echo "Tagging image [${PYSPARK_IMAGE}]"
-# docker tag ${PYSPARK_IMAGE}:${PYSPARK_IMAGE_VERSION} \
-#     ${REGISTRY_ID}.dkr.ecr.${REGION}.amazonaws.com/${PYSPARK_IMAGE}:${PYSPARK_IMAGE_VERSION}
+echo "Tagging image [${PYSPARK_IMAGE}]"
+docker tag ${PYSPARK_IMAGE}:${PYSPARK_IMAGE_VERSION} \
+    ${REGISTRY_ID}.dkr.ecr.${REGION}.amazonaws.com/${PYSPARK_IMAGE}:${PYSPARK_IMAGE_VERSION}
 
 echo "Pushing image [${REGISTRY_ID}.dkr.ecr.${REGION}.amazonaws.com/${PYSPARK_IMAGE}:${PYSPARK_IMAGE_VERSION}]"
 docker push ${REGISTRY_ID}.dkr.ecr.${REGION}.amazonaws.com/${PYSPARK_IMAGE}:${PYSPARK_IMAGE_VERSION}

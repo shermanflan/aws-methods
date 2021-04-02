@@ -27,27 +27,50 @@ def main(filepath: str) -> None:
     docker run --rm -it --name test_pyspark spark-ingest:latest /bin/bash
     ./bin/spark-submit spark-ingest/main.py --filepath ./examples/src/main/python/pi.py
     """
+    logger.info(f"M&Ms process started")
+
     spark = (SparkSession
              .builder
-             .appName("PythonWordCount")
+             .appName("PythonMnMCount")
              # .master('spark://spark:7077')
              # .config(f"fs.azure.account.key.{STORAGE_ACCOUNT}.blob.core.windows.net", STORAGE_KEY)
              .getOrCreate()
              )
 
-    lines = (spark.
-             read.
-             text(filepath).rdd.map(lambda r: r[0])
-             )
-    counts = (lines.
-              flatMap(lambda x: x.split(' ')).
-              map(lambda x: (x, 1)).
-              reduceByKey(add)
-              )
-    output = counts.collect()
+    logger.info(f"Reading M&Ms file")
 
-    for (word, count) in output:
-        logger.info(f"Word! {word}: {count}")
+    file_df = (spark.
+               read.
+               format('csv').
+               option('header', 'true').
+               option('inferSchema', 'true').
+               load(filepath)
+               )
+
+    counts = (file_df.
+              select('State', 'Color', 'Count').
+              groupBy('State', 'Color').
+              sum('Count').
+              orderBy("sum(Count)", ascending=False)
+              )
+
+    logger.info(f"M&Ms agg 1")
+
+    counts.show(n=60, truncate=False)
+
+    logger.info(f"M&Ms! {counts.count()}")
+
+    counts_ca = (file_df.
+                 select('State', 'Color', 'Count').
+                 where(file_df.State == 'CA').
+                 groupBy('State', 'Color').
+                 sum('Count').
+                 orderBy("sum(Count)", ascending=False)
+                 )
+
+    logger.info(f"M&Ms agg 2")
+
+    counts_ca.show(n=10, truncate=False)
 
     spark.stop()
 
