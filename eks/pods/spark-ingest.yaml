@@ -20,7 +20,7 @@ spec:
         "/bin/sh",
         "-c",
         "/opt/spark/bin/spark-submit \
-        --master k8s://https://CFBBAB5E00CE997A91FD667439C0453C.yl4.us-east-2.eks.amazonaws.com:443 \
+        --master k8s://https://B1C6EC3752380E13F71C3C91003C6BE0.gr7.us-east-2.eks.amazonaws.com:443 \
         --deploy-mode cluster \
         --name spark-ingest \
         --conf spark.executor.instances=2 \

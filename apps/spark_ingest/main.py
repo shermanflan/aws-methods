@@ -36,7 +36,7 @@ def main(filepath: str) -> None:
              .builder
              .appName("PythonMnMCount")
              # .master('spark://spark:7077')
-             # .config(f"fs.azure.account.key.{STORAGE_ACCOUNT}.blob.core.windows.net", STORAGE_KEY)
+             .config(f"fs.azure.account.key.{STORAGE_ACCOUNT}.blob.core.windows.net", STORAGE_KEY)
              .getOrCreate()
              )
 
