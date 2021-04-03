@@ -8,7 +8,9 @@
 
 # Standard spark 3.1.1 base container with Python bindings
 # Usage: docker build -t spark-ingest:latest --no-cache .
-FROM 517533378855.dkr.ecr.us-east-2.amazonaws.com/spark-py:3.1.1
+ARG spark_image=spark-py:3.1.1
+# ARG spark_image=517533378855.dkr.ecr.us-east-2.amazonaws.com/spark-py:3.1.1
+FROM ${spark_image}
 
 # Reset to root to run installation tasks
 USER 0

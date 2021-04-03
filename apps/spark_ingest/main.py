@@ -4,6 +4,7 @@ import asyncio
 from datetime import datetime
 import logging
 from operator import add
+import os
 
 import boto3
 import click
@@ -14,6 +15,8 @@ logging.basicConfig(format='%(asctime)s %(levelname)s [%(name)s]: %(message)s',
                     datefmt='%Y-%m-%d %I:%M:%S %p', level=logging.INFO)
 
 logger = logging.getLogger(__name__)
+STORAGE_ACCOUNT=os.environ.get('AZ_STORAGE_ACCOUNT')
+STORAGE_KEY=os.environ.get('AZ_STORAGE_KEY')
 
 
 @click.command()
@@ -37,7 +40,7 @@ def main(filepath: str) -> None:
              .getOrCreate()
              )
 
-    logger.info(f"Reading M&Ms file")
+    logger.info(f"Reading M&Ms file: [{filepath}]")
 
     file_df = (spark.
                read.
