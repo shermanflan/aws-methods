@@ -31,6 +31,7 @@ def main(filepath: str) -> None:
     ./bin/spark-submit spark-ingest/main.py --filepath ./examples/src/main/python/pi.py
     """
     logger.info(f"M&Ms process started")
+    logger.info(f"M&Ms process using credentials from {STORAGE_ACCOUNT} with {STORAGE_KEY}")
 
     spark = (SparkSession
              .builder
