@@ -12,7 +12,7 @@ nodeGroups:
     desiredCapacity: 2
     privateNetworking: true
     amiFamily: Ubuntu2004
-    volumeSize: 40
+    volumeSize: 80
     iam:
       attachPolicyARNs:
         - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy

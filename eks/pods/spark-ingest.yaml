@@ -14,13 +14,13 @@ spec:
   serviceAccountName: spark
   containers:
     - name: spark-ingest
-      image: 517533378855.dkr.ecr.us-east-2.amazonaws.com/spark-py:3.1.1
+      image: 517533378855.dkr.ecr.us-east-2.amazonaws.com/spark-py:3.1.1-3.2
       imagePullPolicy: Always  # IfNotPresent
       args: [
         "/bin/sh",
         "-c",
         "/opt/spark/bin/spark-submit \
-        --master k8s://https://B1C6EC3752380E13F71C3C91003C6BE0.gr7.us-east-2.eks.amazonaws.com:443 \
+        --master k8s://https://9D4111704E627870645469BF7D7898ED.yl4.us-east-2.eks.amazonaws.com:443 \
         --deploy-mode cluster \
         --name spark-ingest \
         --conf spark.executor.instances=2 \
@@ -29,7 +29,18 @@ spec:
         --conf spark.kubernetes.container.image.pullPolicy=Always \ 
         --conf spark.kubernetes.authenticate.driver.serviceAccountName=spark \
         --conf spark.kubernetes.executor.deleteOnTermination=false \
+        --conf spark.kubernetes.driver.secretKeyRef.AWS_ACCESS_KEY_ID=aws-client-secret:AWS_ACCESS_KEY_ID \
+        --conf spark.kubernetes.driver.secretKeyRef.AWS_SECRET_ACCESS_KEY=aws-client-secret:AWS_SECRET_ACCESS_KEY \
+        --conf spark.kubernetes.executor.secretKeyRef.AWS_ACCESS_KEY_ID=aws-client-secret:AWS_ACCESS_KEY_ID \
+        --conf spark.kubernetes.executor.secretKeyRef.AWS_SECRET_ACCESS_KEY=aws-client-secret:AWS_SECRET_ACCESS_KEY \
         --conf spark.jars.ivy=/tmp/.ivy \
         local:///opt/spark/spark-ingest/main.py \
         --filepath s3a://bangkok/mnm_dataset.csv"
       ]
+      resources:
+        requests:
+          cpu: "250m"
+          memory: "500Mi"
+        limits:
+          cpu: "4000m"
+          memory: "8Gi"
