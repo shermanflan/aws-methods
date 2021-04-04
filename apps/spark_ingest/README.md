@@ -20,8 +20,8 @@ can be found from the Spark [distribution](https://spark.apache.org/downloads.ht
 ./bin/docker-image-tool.sh -t 3.1.1 \
   -p ./kubernetes/dockerfiles/spark/bindings/python/Dockerfile build
 ```
-3. This base image will be used as the driver container for running the 
-   `spark-submit` command in k8s.
+    - This base image will be used as the driver container for running the 
+      `spark-submit` command in k8s.
 3. Bundle a Python application image based on the base container with 
    additional dependencies as needed. This will be used as the executor 
    image for the job in k8s. See the [Dockerfile](./Dockerfile) for reference.
