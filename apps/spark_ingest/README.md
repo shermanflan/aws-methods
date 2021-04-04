@@ -32,7 +32,7 @@ can be found from the Spark [distribution](https://spark.apache.org/downloads.ht
 # General Spark Configuration
 
 ## Logging
-To override the default log configuration.
+To override the default log configuration:
 
 1. Build the container with a `conf` directory in the `$SPARK_HOME`
    directory.
@@ -45,7 +45,7 @@ See [local_config](./local_config/log4j.properties) for a reference example.
 
 ## Blob Storage
 Reading from Blob storage uses the [wasb filesystem protocol](https://github.com/hning86/articles/blob/master/hadoopAndWasb.md).
-After navigating the netherworld of hadoop JAR hell, I have determined
+After navigating the netherworld of Hadoop "*JAR hell*", I have determined
 that the following steps are required to successfully configure Spark to 
 read from Azure Blob storage.
 
@@ -53,8 +53,8 @@ read from Azure Blob storage.
 2. Download [Hadoop 2.7.4](https://archive.apache.org/dist/hadoop/common/)
 3. Extract both to the local filesystem.
 4. Copy the following "fat" JARs from Hadoop to the Spark /jars folder
-  - hadoop-2.7.4/share/hadoop/tools/lib/hadoop-azure-2.7.4.jar
-  - hadoop-2.7.4/share/hadoop/tools/lib/azure-storage-2.0.0.jar
+    - hadoop-2.7.4/share/hadoop/tools/lib/hadoop-azure-2.7.4.jar
+    - hadoop-2.7.4/share/hadoop/tools/lib/azure-storage-2.0.0.jar
 5. Build the Spark 3.1.1 container with Python bindings.
 
 # AWS Idiosyncrasies
@@ -72,16 +72,16 @@ getting Spark 3.1.1 on an EKS cluster working.
 
 ## S3
 Reading from S3 uses the [S3A filesystem protocol](https://hadoop.apache.org/docs/current2/hadoop-aws/tools/hadoop-aws/index.html).
-After navigating the netherworld of hadoop JAR hell, I have determined
-that the following steps are required to successfully configure Spark to 
-read from S3.
+After many more hours navigating the netherworld of Hadoop "**JAR hell**", 
+I have determined that the following steps are required to successfully 
+configure Spark to read from S3.
 
 1. Download [Spark 3.1.1 bundled with Hadoop 3.2](https://spark.apache.org/downloads.html)
 2. Download [Hadoop 3.2](https://archive.apache.org/dist/hadoop/common/)
 3. Extract both to the local filesystem.
 4. Copy the following "fat" JARs from Hadoop to the Spark /jars folder
-  - hadoop-3.2.0/share/hadoop/tools/lib/hadoop-aws-3.2.0.jar
-  - hadoop-3.2.0/share/hadoop/tools/lib/aws-java-sdk-bundle-1.11.375.jar
+    - hadoop-3.2.0/share/hadoop/tools/lib/hadoop-aws-3.2.0.jar
+    - hadoop-3.2.0/share/hadoop/tools/lib/aws-java-sdk-bundle-1.11.375.jar
 5. Build the Spark 3.1.1 container with Python bindings.
 
 # Smoke Tests
