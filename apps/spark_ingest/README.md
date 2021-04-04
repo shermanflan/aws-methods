@@ -8,7 +8,7 @@ on Kubernetes.
 
 # Building Spark 3.1.1 Images
 In order to run Spark on k8s, docker images for the respective distribution
-need to be build and deployed to ECR. Reference Docker images and tools
+need to be built and deployed to ECR. Reference Docker images and tools
 can be found from the Spark [distribution](https://spark.apache.org/downloads.html).
 
 1. Build base container
@@ -20,9 +20,11 @@ can be found from the Spark [distribution](https://spark.apache.org/downloads.ht
 ./bin/docker-image-tool.sh -t 3.1.1 \
   -p ./kubernetes/dockerfiles/spark/bindings/python/Dockerfile build
 ```
-3. Bundle a Python application image with specific dependencies based on 
-   the base container. This will be used to run the spark-submit job in 
-   k8s. See the [Dockerfile](./Dockerfile) for reference.
+3. This base image will be used as the driver container for running the 
+   `spark-submit` command in k8s.
+3. Bundle a Python application image based on the base container with 
+   additional dependencies as needed. This will be used as the executor 
+   image for the job in k8s. See the [Dockerfile](./Dockerfile) for reference.
 
 # Technical Pre-requisites
 
