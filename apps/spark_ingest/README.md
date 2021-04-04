@@ -29,6 +29,18 @@ can be found from the Spark [distribution](https://spark.apache.org/downloads.ht
 - The service account credentials used by the driver pods must be allowed 
   to create pods, services and configmaps.
 
+# General Spark Configuration
+
+## Logging
+To override the default log configuration.
+
+1. Build the container with a `conf` directory in the `$SPARK_HOME`
+   directory.
+2. Copy the log4j.properties.template provided with the Spark distribution
+   into this directory and override as needed.
+
+See [local_config](./local_config/log4j.properties) for a reference example.
+
 # Azure Idiosyncrasies
 
 ## Blob Storage
