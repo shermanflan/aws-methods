@@ -13,9 +13,8 @@ services:
       local:///opt/spark/spark-ingest/main.py \
       --filepath s3a://bangkok/mnm_dataset.csv"
     ]
-    # --conf spark.hadoop.fs.s3a.impl=org.apache.hadoop.fs.s3a.S3AFileSystem \
-    # --conf spark.hadoop.fs.s3a.access.key= \
-    # --conf spark.hadoop.fs.s3a.secret.key= \
     env_file: .env
     environment:
-      - LOG_LEVEL=DEBUG
+      - LOG_LEVEL=WARN
+    volumes:
+      - ./local_config:/opt/spark/conf

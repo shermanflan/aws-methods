@@ -15,9 +15,9 @@ logging.basicConfig(format='%(asctime)s %(levelname)s [%(name)s]: %(message)s',
                     datefmt='%Y-%m-%d %I:%M:%S %p', level=logging.INFO)
 
 logger = logging.getLogger(__name__)
-STORAGE_ACCOUNT=os.environ.get('AZ_STORAGE_ACCOUNT_NAME')
-STORAGE_KEY=os.environ.get('AZ_STORAGE_ACCOUNT_KEY')
-
+STORAGE_ACCOUNT = os.environ.get('AZ_STORAGE_ACCOUNT_NAME')
+STORAGE_KEY = os.environ.get('AZ_STORAGE_ACCOUNT_KEY')
+LOG_LEVEL = os.environ.get('LOG_LEVEL', 'WARN')
 
 @click.command()
 @click.option('--filepath', required=True, help='The input file path')
@@ -35,10 +35,10 @@ def main(filepath: str) -> None:
     spark = (SparkSession
              .builder
              .appName("PythonMnMCount")
-             # .master('spark://spark:7077')
              .config(f"fs.azure.account.key.{STORAGE_ACCOUNT}.blob.core.windows.net", STORAGE_KEY)
              .getOrCreate()
              )
+    spark.sparkContext.setLogLevel(LOG_LEVEL)
 
     logger.info(f"Reading M&Ms file: [{filepath}]")
 
