@@ -2,14 +2,14 @@
 
 set -o nounset
 
-echo "Creating repository [${AZ_PYSPARK_IMAGE}]"
+echo "Creating repository [${AWS_PYSPARK_IMAGE}]"
 aws ecr create-repository \
-    --repository-name ${AZ_PYSPARK_IMAGE} \
+    --repository-name ${AWS_PYSPARK_IMAGE} \
     --image-scanning-configuration scanOnPush=false
 
-echo "Creating repository [${AZ_PYSPARK_APP_IMAGE}]"
+echo "Creating repository [${AWS_PYSPARK_APP_IMAGE}]"
 aws ecr create-repository \
-    --repository-name ${AZ_PYSPARK_APP_IMAGE} \
+    --repository-name ${AWS_PYSPARK_APP_IMAGE} \
     --image-scanning-configuration scanOnPush=false
 
 declare REGISTRY_ID=$(aws ecr describe-registry | jq -r .registryId)
@@ -20,23 +20,23 @@ aws ecr get-login-password --region ${REGION} | \
         --username AWS \
         --password-stdin ${REGISTRY_ID}.dkr.ecr.${REGION}.amazonaws.com
 
-echo "Tagging image [${AZ_PYSPARK_IMAGE}]"
-docker tag ${AZ_PYSPARK_IMAGE}:${AZ_PYSPARK_IMAGE_VERSION} \
-    ${REGISTRY_ID}.dkr.ecr.${REGION}.amazonaws.com/${AZ_PYSPARK_IMAGE}:${AZ_PYSPARK_IMAGE_VERSION}
+echo "Tagging image [${AWS_PYSPARK_IMAGE}]"
+docker tag ${AWS_PYSPARK_IMAGE}:${AWS_PYSPARK_IMAGE_VERSION} \
+    ${REGISTRY_ID}.dkr.ecr.${REGION}.amazonaws.com/${AWS_PYSPARK_IMAGE}:${AWS_PYSPARK_IMAGE_VERSION}
 
-echo "Pushing image [${REGISTRY_ID}.dkr.ecr.${REGION}.amazonaws.com/${AZ_PYSPARK_IMAGE}:${AZ_PYSPARK_IMAGE_VERSION}]"
-docker push ${REGISTRY_ID}.dkr.ecr.${REGION}.amazonaws.com/${AZ_PYSPARK_IMAGE}:${AZ_PYSPARK_IMAGE_VERSION}
+echo "Pushing image [${REGISTRY_ID}.dkr.ecr.${REGION}.amazonaws.com/${AWS_PYSPARK_IMAGE}:${AWS_PYSPARK_IMAGE_VERSION}]"
+docker push ${REGISTRY_ID}.dkr.ecr.${REGION}.amazonaws.com/${AWS_PYSPARK_IMAGE}:${AWS_PYSPARK_IMAGE_VERSION}
 
-echo "Removing tagged image [${AZ_PYSPARK_APP_IMAGE}]"
+echo "Removing tagged image [${AWS_PYSPARK_APP_IMAGE}]"
 docker image rm \
-    ${REGISTRY_ID}.dkr.ecr.${REGION}.amazonaws.com/${AZ_PYSPARK_APP_IMAGE}:${AZ_PYSPARK_APP_IMAGE_VERSION}
+    ${REGISTRY_ID}.dkr.ecr.${REGION}.amazonaws.com/${AWS_PYSPARK_APP_IMAGE}:${AWS_PYSPARK_APP_IMAGE_VERSION}
 
-echo "Tagging image [${AZ_PYSPARK_APP_IMAGE}]"
-docker tag ${AZ_PYSPARK_APP_IMAGE}:${AZ_PYSPARK_APP_IMAGE_VERSION} \
-    ${REGISTRY_ID}.dkr.ecr.${REGION}.amazonaws.com/${AZ_PYSPARK_APP_IMAGE}:${AZ_PYSPARK_APP_IMAGE_VERSION}
+echo "Tagging image [${AWS_PYSPARK_APP_IMAGE}]"
+docker tag ${AWS_PYSPARK_APP_IMAGE}:${AWS_PYSPARK_APP_IMAGE_VERSION} \
+    ${REGISTRY_ID}.dkr.ecr.${REGION}.amazonaws.com/${AWS_PYSPARK_APP_IMAGE}:${AWS_PYSPARK_APP_IMAGE_VERSION}
 
-echo "Pushing image [${REGISTRY_ID}.dkr.ecr.${REGION}.amazonaws.com/${AZ_PYSPARK_APP_IMAGE}:${AZ_PYSPARK_APP_IMAGE_VERSION}]"
-docker push ${REGISTRY_ID}.dkr.ecr.${REGION}.amazonaws.com/${AZ_PYSPARK_APP_IMAGE}:${AZ_PYSPARK_APP_IMAGE_VERSION}
+echo "Pushing image [${REGISTRY_ID}.dkr.ecr.${REGION}.amazonaws.com/${AWS_PYSPARK_APP_IMAGE}:${AWS_PYSPARK_APP_IMAGE_VERSION}]"
+docker push ${REGISTRY_ID}.dkr.ecr.${REGION}.amazonaws.com/${AWS_PYSPARK_APP_IMAGE}:${AWS_PYSPARK_APP_IMAGE_VERSION}
 
 # echo "Describe images"
 # aws ecr describe-repositories
