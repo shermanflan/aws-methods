@@ -11,8 +11,10 @@ services:
       "/opt/spark/bin/spark-submit \
       --name spark-ingest \
       local:///opt/spark/spark-ingest/main.py \
-      --filepath s3a://bangkok/mnm_dataset.csv"
+      --filepath s3a://bangkok/blogs.json"
     ]
+    #--filepath s3a://bangkok/mnm_dataset.csv
+    #--filepath s3a://bangkok/blogs.json"
     env_file: .env
     environment:
       - LOG_LEVEL=WARN

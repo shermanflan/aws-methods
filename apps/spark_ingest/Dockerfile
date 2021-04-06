@@ -24,7 +24,7 @@ RUN pip install --upgrade pip wheel setuptools \
     && pip --no-cache-dir install -r ${APP_HOME}/requirements.txt \
     && rm /${APP_HOME}/requirements.txt
 
-COPY ./local_data ${APP_HOME}/local_data
+COPY ./ingest ${APP_HOME}/ingest
 COPY ./main.py ${APP_HOME}
 ENV PYTHONPATH=${APP_HOME}
 
