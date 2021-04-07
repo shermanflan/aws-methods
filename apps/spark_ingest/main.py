@@ -18,7 +18,7 @@ from pyspark.sql.functions import avg
 
 import ingest
 from ingest.examples import (
-    run_mnms, process_schema
+    run_mnms, process_schema, process_large_csv
 )
 
 logger = logging.getLogger(__name__)
@@ -28,7 +28,8 @@ LOG_LEVEL = os.environ.get('LOG_LEVEL', 'WARN')
 
 @click.command()
 @click.option('--filepath', required=True, help='The input file path')
-def main(filepath: str) -> None:
+@click.option('--output_path', required=False, help='The output file path')
+def main(filepath: str, output_path: str) -> None:
     spark = (SparkSession
              .builder
              .appName("spark_ingest_poc")
@@ -41,7 +42,7 @@ def main(filepath: str) -> None:
     # run_mnms(spark, filepath)
 
     # Scratch
-    process_schema(spark, filepath)
+    process_large_csv(spark, filepath, output_path)
 
     spark.stop()
 

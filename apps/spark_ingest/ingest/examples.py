@@ -4,17 +4,79 @@
 import logging
 
 from pyspark.sql.functions import (
-    col, concat, expr, lit
+    col, concat, expr, lit, sum as spark_sum, to_timestamp,
+    year as spark_year
 )
 from pyspark.sql.types import (
     StringType, StructType, StructField, IntegerType,
-    ArrayType
+    ArrayType, BooleanType, FloatType
 )
 
 import ingest
 
 
 logger = logging.getLogger(__name__)
+
+
+def process_large_csv(session, input_path: str, output_path: str) -> None:
+    """
+    Read a large CSV and output the aggregated results to parquet.
+    """
+    # Programmatic way to define a schema
+    fire_schema = StructType([
+        StructField('CallNumber', IntegerType(), True),
+        StructField('UnitID', StringType(), True),
+        StructField('IncidentNumber', IntegerType(), True),
+        StructField('CallType', StringType(), True),
+        StructField('CallDate', StringType(), True),
+        StructField('WatchDate', StringType(), True),
+        StructField('CallFinalDisposition', StringType(), True),
+        StructField('AvailableDtTm', StringType(), True),
+        StructField('Address', StringType(), True),
+        StructField('City', StringType(), True),
+        StructField('Zipcode', IntegerType(), True),
+        StructField('Battalion', StringType(), True),
+        StructField('StationArea', StringType(), True),
+        StructField('Box', StringType(), True),
+        StructField('OriginalPriority', StringType(), True),
+        StructField('Priority', StringType(), True),
+        StructField('FinalPriority', IntegerType(), True),
+        StructField('ALSUnit', BooleanType(), True),
+        StructField('CallTypeGroup', StringType(), True),
+        StructField('NumAlarms', IntegerType(), True),
+        StructField('UnitType', StringType(), True),
+        StructField('UnitSequenceInCallDispatch', IntegerType(), True),
+        StructField('FirePreventionDistrict', StringType(), True),
+        StructField('SupervisorDistrict', StringType(), True),
+        StructField('Neighborhood', StringType(), True),
+        StructField('Location', StringType(), True),
+        StructField('RowID', StringType(), True),
+        StructField('Delay', FloatType(), True)]
+    )
+
+    # Use the DataFrameReader interface to read a CSV file
+    fire_df = (session.
+               read.
+               csv(input_path, header=True, schema=fire_schema)
+               )
+
+    counts = (fire_df.
+              withColumn("CallYear", to_timestamp(col("CallDate"), "MM/dd/yyyy")).
+              withColumnRenamed("NumAlarms", "Alarms").
+              where((col("CallType") != "Medical Incident") & col("CallDate").isNotNull()).
+              select('City', spark_year('CallYear').alias('Year'), 'CallType', 'Alarms').
+              groupBy('City', 'Year', 'CallType').
+              agg(spark_sum('Alarms').alias("TotalAlarms")).
+              orderBy("TotalAlarms", ascending=False)
+              )
+
+    counts.show(n=21, truncate=False)
+
+    # Save as parquet
+    (counts.
+     write.
+     format("parquet").
+     save(output_path))
 
 
 def process_schema(session, filepath: str) -> None:

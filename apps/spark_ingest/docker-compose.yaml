@@ -11,8 +11,10 @@ services:
       "/opt/spark/bin/spark-submit \
       --name spark-ingest \
       local:///opt/spark/spark-ingest/main.py \
-      --filepath s3a://bangkok/blogs.json"
+      --filepath s3a://bangkok/sf-fire-calls.csv
+      --output_path s3a://condesa/sf-fire-calls"
     ]
+    #--filepath s3a://bangkok/sf-fire-calls.csv
     #--filepath s3a://bangkok/mnm_dataset.csv
     #--filepath s3a://bangkok/blogs.json"
     env_file: .env
