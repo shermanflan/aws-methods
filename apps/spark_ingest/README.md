@@ -44,6 +44,16 @@ To override the default log configuration:
 
 See [local_config](./local_config/log4j.properties) for a reference example.
 
+## JDBC
+The appropriate JDBC driver must be made available to the spark classpath in
+order to initiate database i/o.
+
+### Postresql
+1. Download the latest [JDBC driver](https://jdbc.postgresql.org/download.html)
+   - As of this writing, current version is 42.2.20
+2. Copy the respective JAR to the Spark /jars folder
+3. Build the Spark 3.1.1 container with Python bindings
+
 # Azure Idiosyncrasies
 
 ## Blob Storage

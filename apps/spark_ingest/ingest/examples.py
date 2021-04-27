@@ -1,5 +1,4 @@
 """
-
 """
 import logging
 
@@ -76,6 +75,7 @@ def process_large_csv(session, input_path: str, output_path: str) -> None:
     (counts.
      write.
      format("parquet").
+     mode("overwrite").
      save(output_path))
 
 
