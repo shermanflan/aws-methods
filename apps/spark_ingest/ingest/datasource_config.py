@@ -23,9 +23,9 @@ DS_SUMMARY = {
 
 DS_CONFIG = [
     {
-        'input': f"{S3_PREFIX}_allergy_{S3_SUFFIX}",
-        'output': 'public.stage_allergy',
-        'schema': StructType([
+        'input_path': f"{S3_PREFIX}_allergy_{S3_SUFFIX}",
+        'output_table': 'public.stage_allergy',
+        'file_schema': StructType([
             StructField('client_id', StringType(), nullable=True),
             StructField('patient_id', StringType(), nullable=True),
             StructField('type', StringType(), nullable=True),
@@ -39,9 +39,9 @@ DS_CONFIG = [
         ]),
     },
     {
-        'input': f"{S3_PREFIX}_demographic_{S3_SUFFIX}",
-        'output': 'public.stage_demographic',
-        'schema': StructType([
+        'input_path': f"{S3_PREFIX}_demographic_{S3_SUFFIX}",
+        'output_table': 'public.stage_demographic',
+        'file_schema': StructType([
             StructField('client_id', StringType(), nullable=True),
             StructField('client_patient_id', StringType(), nullable=True),
             StructField('first_name', StringType(), nullable=True),
@@ -76,9 +76,9 @@ DS_CONFIG = [
         ]),
     },
     {
-        'input': f"{S3_PREFIX}_diagnosis_{S3_SUFFIX}",
-        'output': 'public.stage_diagnosis',
-        'schema': StructType([
+        'input_path': f"{S3_PREFIX}_diagnosis_{S3_SUFFIX}",
+        'output_table': 'public.stage_diagnosis',
+        'file_schema': StructType([
             StructField('client_id', StringType(), nullable=True),
             StructField('patient_id', StringType(), nullable=True),
             StructField('icd9_code', StringType(), nullable=True),
@@ -93,9 +93,9 @@ DS_CONFIG = [
         ]),
     },
     {
-        'input': f"{S3_PREFIX}_encounter_{S3_SUFFIX}",
-        'output': 'public.stage_encounter',
-        'schema': StructType([
+        'input_path': f"{S3_PREFIX}_encounter_{S3_SUFFIX}",
+        'output_table': 'public.stage_encounter',
+        'file_schema': StructType([
             StructField('client_id', StringType(), nullable=True),
             StructField('encounter_id', StringType(), nullable=True),
             StructField('patient_id', StringType(), nullable=True),
@@ -109,9 +109,9 @@ DS_CONFIG = [
         ]),
     },
     {
-        'input': f"{S3_PREFIX}_immunization_{S3_SUFFIX}",
-        'output': 'public.stage_immunization',
-        'schema': StructType([
+        'input_path': f"{S3_PREFIX}_immunization_{S3_SUFFIX}",
+        'output_table': 'public.stage_immunization',
+        'file_schema': StructType([
             StructField('client_id', StringType(), nullable=True),
             StructField('patient_id', StringType(), nullable=True),
             StructField('service_date', StringType(), nullable=True),
@@ -127,9 +127,9 @@ DS_CONFIG = [
         ]),
     },
     {
-        'input': f"{S3_PREFIX}_lab_result_{S3_SUFFIX}",
-        'output': 'public.stage_lab_result',
-        'schema': StructType([
+        'input_path': f"{S3_PREFIX}_lab_result_{S3_SUFFIX}",
+        'output_table': 'public.stage_lab_result',
+        'file_schema': StructType([
             StructField('client_id', StringType(), nullable=True),
             StructField('patient_id', StringType(), nullable=True),
             StructField('service_code', StringType(), nullable=True),
@@ -151,9 +151,9 @@ DS_CONFIG = [
         ]),
     },
     {
-        'input': f"{S3_PREFIX}_medication_{S3_SUFFIX}",
-        'output': 'public.stage_medication',
-        'schema': StructType([
+        'input_path': f"{S3_PREFIX}_medication_{S3_SUFFIX}",
+        'output_table': 'public.stage_medication',
+        'file_schema': StructType([
             StructField('client_id', StringType(), nullable=True),
             StructField('patient_id', StringType(), nullable=True),
             StructField('id_ndc', StringType(), nullable=True),
@@ -174,9 +174,9 @@ DS_CONFIG = [
         ]),
     },
     {
-        'input': f"{S3_PREFIX}_medsurg_history_{S3_SUFFIX}",
-        'output': 'public.stage_medsurg',
-        'schema': StructType([
+        'input_path': f"{S3_PREFIX}_medsurg_history_{S3_SUFFIX}",
+        'output_table': 'public.stage_medsurg',
+        'file_schema': StructType([
             StructField('client_id', StringType(), nullable=True),
             StructField('patient_id', StringType(), nullable=True),
             StructField('date', StringType(), nullable=True),
@@ -185,9 +185,9 @@ DS_CONFIG = [
         ]),
     },
     {
-        'input': f"{S3_PREFIX}_procedure_{S3_SUFFIX}",
-        'output': 'public.stage_procedure',
-        'schema': StructType([
+        'input_path': f"{S3_PREFIX}_procedure_{S3_SUFFIX}",
+        'output_table': 'public.stage_procedure',
+        'file_schema': StructType([
             StructField('client_id', StringType(), nullable=True),
             StructField('patient_id', StringType(), nullable=True),
             StructField('cpt4_hcpcs_code', StringType(), nullable=True),
@@ -201,9 +201,9 @@ DS_CONFIG = [
         ]),
     },
     {
-        'input': f"{S3_PREFIX}_quality_data_{S3_SUFFIX}",
-        'output': 'public.stage_quality_data',
-        'schema': StructType([
+        'input_path': f"{S3_PREFIX}_quality_data_{S3_SUFFIX}",
+        'output_table': 'public.stage_quality_data',
+        'file_schema': StructType([
             StructField('client_id', StringType(), nullable=True),
             StructField('patient_id', StringType(), nullable=True),
             StructField('item_name', StringType(), nullable=True),
@@ -216,9 +216,9 @@ DS_CONFIG = [
         ]),
     },
     {
-        'input': f"{S3_PREFIX}_social_history_{S3_SUFFIX}",
-        'output': 'public.stage_social_history',
-        'schema': StructType([
+        'input_path': f"{S3_PREFIX}_social_history_{S3_SUFFIX}",
+        'output_table': 'public.stage_social_history',
+        'file_schema': StructType([
             StructField('client_id', StringType(), nullable=True),
             StructField('patient_id', StringType(), nullable=True),
             StructField('observation_date', StringType(), nullable=True),
@@ -236,9 +236,9 @@ DS_CONFIG = [
         ]),
     },
     {
-        'input': f"{S3_PREFIX}_vitals_{S3_SUFFIX}",
-        'output': 'public.stage_vital',
-        'schema': StructType([
+        'input_path': f"{S3_PREFIX}_vitals_{S3_SUFFIX}",
+        'output_table': 'public.stage_vital',
+        'file_schema': StructType([
             StructField('client_id', StringType(), nullable=True),
             StructField('patient_id', StringType(), nullable=True),
             StructField('service_date', StringType(), nullable=True),

@@ -88,10 +88,8 @@ def main(filepath: str, output_path: str) -> None:
         logger.info(f"Loading {task_name} ({i} of {len(DS_CONFIG)})")
 
         psv_to_sql(spark,
-                   file_schema=task['schema'],
-                   input_path=task['input'],
-                   output_table=task['output'],
-                   target_jdbc=os.environ['TARGET_JDBC_URL'])
+                   target_jdbc=os.environ['TARGET_JDBC_URL'],
+                   **task)
 
     logger.info(f"Load process finished in {datetime.now() - start}")
 
