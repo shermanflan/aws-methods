@@ -6,7 +6,7 @@ docker run --rm -it --name test_pyspark --network container:spark_ingest_spark_1
 docker run --rm -it --name test_pyspark spark-ingest:latest /bin/bash
 ./bin/spark-submit spark-ingest/main.py --filepath ./examples/src/main/python/pi.py
 """
-from datetime import datetime
+from datetime import datetime, date, timedelta
 import logging
 import os
 
@@ -17,9 +17,11 @@ from pyspark.sql import SparkSession
 
 import ingest
 from ingest.common import (
-    psv_to_sql, csv_to_json
+    psv_to_sql, psv_filter_to_sql
 )
-from ingest.datasource_config import DS_CONFIG
+from ingest.datasource_config import (
+    DS_CONFIG, DS_SUMMARY
+)
 from ingest.examples import (
     run_mnms, process_schema, FIRE_CONFIG
 )
@@ -45,13 +47,17 @@ def main(filepath: str, output_path: str) -> None:
     spark = (SparkSession
              .builder
              .appName("spark_ingest_poc")
+             .config(f"fs.s3a.bucket.{os.environ['P3_BUCKET']}.access.key",
+                     os.environ['P3_AWS_ACCESS_KEY'])
+             .config(f"fs.s3a.bucket.{os.environ['P3_BUCKET']}.secret.key",
+                     os.environ['P3_AWS_SECRET_KEY'])
              .config("spark.hadoop.fs.s3a.bucket.bangkok.access.key",
                      os.environ['BK_AWS_ACCESS_KEY'])
              .config("spark.hadoop.fs.s3a.bucket.bangkok.secret.key",
                      os.environ['BK_AWS_SECRET_KEY'])
-             .config("fs.s3a.bucket.condesa.access.key",
+             .config("spark.hadoop.fs.s3a.bucket.condesa.access.key",
                      os.environ['CO_AWS_ACCESS_KEY'])
-             .config("fs.s3a.bucket.condesa.secret.key",
+             .config("spark.hadoop.fs.s3a.bucket.condesa.secret.key",
                      os.environ['CO_AWS_SECRET_KEY'])
              # TODO: S3A Optimizations
              # .config("spark.hadoop.fs.s3a.committer.name", "directory")
@@ -71,8 +77,10 @@ def main(filepath: str, output_path: str) -> None:
     start = datetime.now()
     logger.info(f"Load process started")
 
-    # Examples
-    csv_to_json(spark, FIRE_CONFIG, filepath, output_path)
+    psv_filter_to_sql(spark,
+                      filter_date=date.today() - timedelta(days=1),
+                      target_jdbc=os.environ['TARGET_JDBC_URL'],
+                      **DS_SUMMARY)
 
     # for i, task in enumerate(DS_CONFIG[:], start=1):
     #
@@ -82,7 +90,8 @@ def main(filepath: str, output_path: str) -> None:
     #     psv_to_sql(spark,
     #                file_schema=task['schema'],
     #                input_path=task['input'],
-    #                output_table=task['output'])
+    #                output_table=task['output'],
+    #                target_jdbc=os.environ['TARGET_JDBC_URL'])
 
     logger.info(f"Load process finished in {datetime.now() - start}")
 

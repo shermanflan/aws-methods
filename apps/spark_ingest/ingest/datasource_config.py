@@ -10,6 +10,17 @@ _default_date = date.today() - timedelta(days=1)
 S3_SUFFIX = os.environ.get('S3_SUFFIX',
                            f"rh_{_default_date.strftime('%Y%m%d')}.gz")
 
+DS_SUMMARY = {
+    'input_path': f"{S3_PREFIX}_extraction_summary_{S3_SUFFIX}",
+    'output_table': 'public.extraction_summary',
+    'file_schema': StructType([
+        StructField('object', StringType(), nullable=True),
+        StructField('client_id', StringType(), nullable=True),
+        StructField('count', IntegerType(), nullable=True),
+        StructField('extraction_date', TimestampType(), nullable=True),
+    ]),
+}
+
 DS_CONFIG = [
     {
         'input': f"{S3_PREFIX}_allergy_{S3_SUFFIX}",
@@ -245,16 +256,6 @@ DS_CONFIG = [
             StructField('oxygen_saturation', StringType(), nullable=True),
             StructField('bmi', StringType(), nullable=True),
             StructField('encounter_id', StringType(), nullable=True),
-        ]),
-    },
-    {
-        'input': f"{S3_PREFIX}_extraction_summary_{S3_SUFFIX}",
-        'output': 'public.extraction_summary',
-        'schema': StructType([
-            StructField('object', StringType(), nullable=True),
-            StructField('client_id', StringType(), nullable=True),
-            StructField('count', IntegerType(), nullable=True),
-            StructField('extraction_date', TimestampType(), nullable=True),
         ]),
     },
 ]
