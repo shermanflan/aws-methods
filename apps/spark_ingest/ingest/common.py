@@ -2,6 +2,7 @@ from datetime import date
 import logging
 import os
 
+from pyspark.sql import DataFrame
 from pyspark.sql.functions import (
     col, sum as spark_sum, date_trunc
 )
@@ -13,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 def psv_filter_to_sql(session, file_schema, input_path: str,
                       output_table: str, filter_date: date,
-                      target_jdbc: str) -> None:
+                      target_jdbc: str) -> DataFrame:
     """
     Read PSV-formatted data and output the results to SQL after
     filtering the input on `filter_date`.
@@ -45,7 +46,7 @@ def psv_filter_to_sql(session, file_schema, input_path: str,
     :param output_table: the target SQL table (schema.table)
     :param filter_date: date value to filter input
     :param target_jdbc: sql target (connection string)
-    :return: None
+    :return: pyspark.sql.DataFrame
     """
     logger.info(f"Read PSV file: {input_path}")
 
@@ -69,6 +70,14 @@ def psv_filter_to_sql(session, file_schema, input_path: str,
     logger.info(f"Write to SQL: {output_table}")
 
     # Creates a table with given schema
+    (counts_df
+     .write
+     .jdbc(url=target_jdbc,
+           table=output_table,
+           mode='overwrite')
+     )
+
+    # Verbosity++
     # (file_df
     #  .write
     #  .mode('overwrite')
@@ -78,13 +87,7 @@ def psv_filter_to_sql(session, file_schema, input_path: str,
     #  .save()
     #  )
 
-    # Also creates a table with given schema
-    (file_df
-     .write
-     .jdbc(url=target_jdbc,
-           table=output_table,
-           mode='overwrite')
-     )
+    return counts_df
 
 
 def psv_to_sql(session, file_schema, input_path: str,
@@ -124,12 +127,13 @@ def psv_to_sql(session, file_schema, input_path: str,
 
     file_df = (session.
                read.
-               csv(input_path, sep='|', header=False, schema=file_schema)
+               csv(input_path, sep='|', header=False,
+                   schema=file_schema)
                )
 
     logger.info(f"Write to SQL: {output_table}")
 
-    # Also creates a table with given schema
+    # Creates a table with given schema
     (file_df
      .write
      .jdbc(url=target_jdbc,
@@ -138,7 +142,8 @@ def psv_to_sql(session, file_schema, input_path: str,
      )
 
 
-def psv_to_parquet(session, file_schema, input_path: str, output_path: str) -> None:
+def psv_to_parquet(session, file_schema, input_path: str,
+                   output_path: str) -> None:
     """
     Read PSV-formatted data and output the results to parquet.
     """
@@ -146,7 +151,8 @@ def psv_to_parquet(session, file_schema, input_path: str, output_path: str) -> N
 
     file_df = (session
                .read
-               .csv(input_path, sep='|', header=False, schema=file_schema)
+               .csv(input_path, sep='|', header=False,
+                    schema=file_schema)
                )
 
     logger.info(f"Write to parquet")
@@ -158,16 +164,16 @@ def psv_to_parquet(session, file_schema, input_path: str, output_path: str) -> N
     #  .save(output_path)
     #  )
 
-    # Less verbose alternative
+    # Verbose--
     (file_df
+     # .limit(21)
      .write
-     .format("parquet")
-     .mode("overwrite")
-     .save(output_path)
+     .parquet(path=output_path, mode="overwrite")
      )
 
 
-def csv_to_parquet(session, file_schema, input_path: str, output_path: str) -> None:
+def csv_to_parquet(session, file_schema, input_path: str,
+                   output_path: str) -> None:
     """
     Read CSV-formatted data and output the results to parquet.
     """
@@ -183,8 +189,7 @@ def csv_to_parquet(session, file_schema, input_path: str, output_path: str) -> N
     (file_df
      # .limit(21)
      .write
-     .parquet(path=output_path,
-              mode="overwrite")
+     .parquet(path=output_path, mode="overwrite")
      )
 
 
@@ -204,7 +209,6 @@ def csv_to_json(session, file_schema, input_path: str, output_path: str) -> None
     (file_df
      # .limit(21)
      .write
-     .json(path=output_path,
-           mode="overwrite")
+     .json(path=output_path, mode="overwrite")
      )
 

@@ -82,16 +82,16 @@ def main(filepath: str, output_path: str) -> None:
                       target_jdbc=os.environ['TARGET_JDBC_URL'],
                       **DS_SUMMARY)
 
-    # for i, task in enumerate(DS_CONFIG[:], start=1):
-    #
-    #     task_name = os.path.split(task['input'])[1]
-    #     logger.info(f"Loading {task_name} ({i} of {len(DS_CONFIG)})")
-    #
-    #     psv_to_sql(spark,
-    #                file_schema=task['schema'],
-    #                input_path=task['input'],
-    #                output_table=task['output'],
-    #                target_jdbc=os.environ['TARGET_JDBC_URL'])
+    for i, task in enumerate(DS_CONFIG[:], start=1):
+
+        task_name = os.path.split(task['input'])[1]
+        logger.info(f"Loading {task_name} ({i} of {len(DS_CONFIG)})")
+
+        psv_to_sql(spark,
+                   file_schema=task['schema'],
+                   input_path=task['input'],
+                   output_table=task['output'],
+                   target_jdbc=os.environ['TARGET_JDBC_URL'])
 
     logger.info(f"Load process finished in {datetime.now() - start}")
 
