@@ -50,10 +50,10 @@ def psv_filter_to_sql(session, file_schema, input_path: str,
     """
     logger.info(f"Read PSV file: {input_path}")
 
-    file_df = (session.
-               read.
-               csv(input_path, sep='|', header=False, schema=file_schema).
-               where((col("extraction_date") > filter_date))
+    file_df = (session
+               .read
+               .csv(input_path, sep='|', header=False, schema=file_schema)
+               .where((col("extraction_date") > filter_date))
                )
 
     logger.info(f"Filtering contents > {filter_date}")
@@ -125,9 +125,9 @@ def psv_to_sql(session, file_schema, input_path: str,
     """
     logger.info(f"Read PSV file: {input_path}")
 
-    file_df = (session.
-               read.
-               csv(input_path, sep='|', header=False,
+    file_df = (session
+               .read
+               .csv(input_path, sep='|', header=False,
                    schema=file_schema)
                )
 
