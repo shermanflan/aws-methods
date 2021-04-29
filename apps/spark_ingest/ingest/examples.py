@@ -16,67 +16,70 @@ import ingest
 
 logger = logging.getLogger(__name__)
 
+# Programmatic way to define a schema
+FIRE_CONFIG = StructType([
+    StructField('CallNumber', IntegerType(), True),
+    StructField('UnitID', StringType(), True),
+    StructField('IncidentNumber', IntegerType(), True),
+    StructField('CallType', StringType(), True),
+    StructField('CallDate', StringType(), True),
+    StructField('WatchDate', StringType(), True),
+    StructField('CallFinalDisposition', StringType(), True),
+    StructField('AvailableDtTm', StringType(), True),
+    StructField('Address', StringType(), True),
+    StructField('City', StringType(), True),
+    StructField('Zipcode', IntegerType(), True),
+    StructField('Battalion', StringType(), True),
+    StructField('StationArea', StringType(), True),
+    StructField('Box', StringType(), True),
+    StructField('OriginalPriority', StringType(), True),
+    StructField('Priority', StringType(), True),
+    StructField('FinalPriority', IntegerType(), True),
+    StructField('ALSUnit', BooleanType(), True),
+    StructField('CallTypeGroup', StringType(), True),
+    StructField('NumAlarms', IntegerType(), True),
+    StructField('UnitType', StringType(), True),
+    StructField('UnitSequenceInCallDispatch', IntegerType(), True),
+    StructField('FirePreventionDistrict', StringType(), True),
+    StructField('SupervisorDistrict', StringType(), True),
+    StructField('Neighborhood', StringType(), True),
+    StructField('Location', StringType(), True),
+    StructField('RowID', StringType(), True),
+    StructField('Delay', FloatType(), True)]
+)
+
 
 def process_large_csv(session, input_path: str, output_path: str) -> None:
     """
     Read a large CSV and output the aggregated results to parquet.
     """
-    # Programmatic way to define a schema
-    fire_schema = StructType([
-        StructField('CallNumber', IntegerType(), True),
-        StructField('UnitID', StringType(), True),
-        StructField('IncidentNumber', IntegerType(), True),
-        StructField('CallType', StringType(), True),
-        StructField('CallDate', StringType(), True),
-        StructField('WatchDate', StringType(), True),
-        StructField('CallFinalDisposition', StringType(), True),
-        StructField('AvailableDtTm', StringType(), True),
-        StructField('Address', StringType(), True),
-        StructField('City', StringType(), True),
-        StructField('Zipcode', IntegerType(), True),
-        StructField('Battalion', StringType(), True),
-        StructField('StationArea', StringType(), True),
-        StructField('Box', StringType(), True),
-        StructField('OriginalPriority', StringType(), True),
-        StructField('Priority', StringType(), True),
-        StructField('FinalPriority', IntegerType(), True),
-        StructField('ALSUnit', BooleanType(), True),
-        StructField('CallTypeGroup', StringType(), True),
-        StructField('NumAlarms', IntegerType(), True),
-        StructField('UnitType', StringType(), True),
-        StructField('UnitSequenceInCallDispatch', IntegerType(), True),
-        StructField('FirePreventionDistrict', StringType(), True),
-        StructField('SupervisorDistrict', StringType(), True),
-        StructField('Neighborhood', StringType(), True),
-        StructField('Location', StringType(), True),
-        StructField('RowID', StringType(), True),
-        StructField('Delay', FloatType(), True)]
-    )
 
     # Use the DataFrameReader interface to read a CSV file
-    fire_df = (session.
-               read.
-               csv(input_path, header=True, schema=fire_schema)
+    fire_df = (session
+               .read
+               .csv(input_path, header=True, schema=FIRE_CONFIG)
                )
 
-    counts = (fire_df.
-              withColumn("CallYear", to_timestamp(col("CallDate"), "MM/dd/yyyy")).
-              withColumnRenamed("NumAlarms", "Alarms").
-              where((col("CallType") != "Medical Incident") & col("CallDate").isNotNull()).
-              select('City', spark_year('CallYear').alias('Year'), 'CallType', 'Alarms').
-              groupBy('City', 'Year', 'CallType').
-              agg(spark_sum('Alarms').alias("TotalAlarms")).
-              orderBy("TotalAlarms", ascending=False)
+    counts = (fire_df
+              .withColumn("CallYear", to_timestamp(col("CallDate"), "MM/dd/yyyy"))
+              .withColumnRenamed("NumAlarms", "Alarms")
+              .where((col("CallType") != "Medical Incident") & col("CallDate").isNotNull())
+              .select('City', spark_year('CallYear').alias('Year'), 'CallType', 'Alarms')
+              .groupBy('City', 'Year', 'CallType')
+              .agg(spark_sum('Alarms').alias("TotalAlarms"))
+              .orderBy("TotalAlarms", ascending=False)
               )
 
     counts.show(n=21, truncate=False)
 
-    # Save as parquet
-    (counts.
-     write.
-     format("parquet").
-     mode("overwrite").
-     save(output_path))
+    # Save as parquet (filtered for speed)
+    (counts
+     .limit(21)
+     .write
+     .format("parquet")
+     .mode("overwrite")
+     .save(output_path)
+     )
 
 
 def process_schema(session, filepath: str) -> None:
@@ -122,10 +125,10 @@ def process_schema(session, filepath: str) -> None:
     # blogs_df = session.createDataFrame(data, schema)
 
     # Read from remote data lake
-    blogs_df = (session.
-                read.
-                schema(schema).
-                json(filepath)
+    blogs_df = (session
+                .read
+                .schema(schema)
+                .json(filepath)
                 )
 
     # show the DataFrame; it should reflect our table above
@@ -140,11 +143,11 @@ def process_schema(session, filepath: str) -> None:
     blogs_df.select(expr("Hits * 2")).show(2)
 
     # show heavy hitters
-    (blogs_df.
-     withColumn("Full Name", (concat(col("Last"), lit(', '), expr("First")))).
-     withColumn("Big Hitters", (expr("Hits > 10000"))).
-     sort(col("Hits").desc()).
-     show()
+    (blogs_df
+     .withColumn("Full Name", (concat(col("Last"), lit(', '), expr("First"))))
+     .withColumn("Big Hitters", (expr("Hits > 10000")))
+     .sort(col("Hits").desc())
+     .show()
      )
 
     logger.info(blogs_df.schema)
@@ -161,19 +164,19 @@ def run_mnms(session, filepath: str) -> None:
     """
     logger.info(f"Reading M&Ms file: [{filepath}]")
 
-    file_df = (session.
-               read.
-               format('csv').
-               option('header', 'true').
-               option('inferSchema', 'true').
-               load(filepath)
+    file_df = (session
+               .read
+               .format('csv')
+               .option('header', 'true')
+               .option('inferSchema', 'true')
+               .load(filepath)
                )
 
-    counts = (file_df.
-              select('State', 'Color', 'Count').
-              groupBy('State', 'Color').
-              sum('Count').
-              orderBy("sum(Count)", ascending=False)
+    counts = (file_df
+              .select('State', 'Color', 'Count')
+              .groupBy('State', 'Color')
+              .sum('Count')
+              .orderBy("sum(Count)", ascending=False)
               )
 
     logger.info(f"M&Ms agg 1")
@@ -182,12 +185,12 @@ def run_mnms(session, filepath: str) -> None:
 
     logger.info(f"M&Ms! {counts.count()}")
 
-    counts_ca = (file_df.
-                 select('State', 'Color', 'Count').
-                 where(file_df.State == 'CA').
-                 groupBy('State', 'Color').
-                 sum('Count').
-                 orderBy("sum(Count)", ascending=False)
+    counts_ca = (file_df
+                 .select('State', 'Color', 'Count')
+                 .where(file_df.State == 'CA')
+                 .groupBy('State', 'Color')
+                 .sum('Count')
+                 .orderBy("sum(Count)", ascending=False)
                  )
 
     logger.info(f"M&Ms agg 2")

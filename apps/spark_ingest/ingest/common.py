@@ -25,6 +25,12 @@ def psv_to_sql(session, file_schema, input_path: str, output_table: str) -> None
                    output_table='stage.data_dump')
     ```
 
+    TODO: Can you use SELECT * from a jdbc source?
+    - https://spark.apache.org/docs/latest/sql-data-sources-load-save-functions.html#run-sql-on-files-directly
+    ```
+    df = spark.sql("SELECT * FROM parquet.`examples/users.parquet`")
+    ```
+
     :param session: the Spark session
     :param file_schema: the schema struct array
     :param input_path: the remote data lake path (s3a://, wasbs://, etc.)
@@ -33,8 +39,6 @@ def psv_to_sql(session, file_schema, input_path: str, output_table: str) -> None
     """
     logger.info(f"Read PSV file: {input_path}")
 
-    # TODO: https://spark.apache.org/docs/latest/sql-data-sources-load-save-functions.html#run-sql-on-files-directly
-    # df = spark.sql("SELECT * FROM parquet.`examples/src/main/resources/users.parquet`")
     file_df = (session.
                read.
                csv(input_path, sep='|', header=False, schema=file_schema)
@@ -42,7 +46,7 @@ def psv_to_sql(session, file_schema, input_path: str, output_table: str) -> None
 
     logger.info(f"Write to SQL: {output_table}")
 
-    # Creates a table using schema
+    # Creates a table with given schema
     # (file_df
     #  .write
     #  .mode('overwrite')
@@ -52,7 +56,7 @@ def psv_to_sql(session, file_schema, input_path: str, output_table: str) -> None
     #  .save()
     #  )
 
-    # Also creates a table using schema
+    # Also creates a table with given schema
     (file_df
      .write
      .jdbc(url=os.environ['TARGET_JDBC_URL'],
@@ -74,6 +78,14 @@ def psv_to_parquet(session, file_schema, input_path: str, output_path: str) -> N
 
     logger.info(f"Write to parquet")
 
+    # (file_df
+    #  .write
+    #  .format("parquet")
+    #  .mode("overwrite")
+    #  .save(output_path)
+    #  )
+
+    # Less verbose alternative
     (file_df
      .write
      .format("parquet")
@@ -81,9 +93,45 @@ def psv_to_parquet(session, file_schema, input_path: str, output_path: str) -> N
      .save(output_path)
      )
 
-    # Alternative
-    # (file_df
-    #  .write
-    #  .parquet(path=output_path,
-    #           mode="overwrite")
-    #  )
+
+def csv_to_parquet(session, file_schema, input_path: str, output_path: str) -> None:
+    """
+    Read CSV-formatted data and output the results to parquet.
+    """
+    logger.info(f"Read CSV file")
+
+    file_df = (session
+               .read
+               .csv(input_path, header=True, schema=file_schema)
+               )
+
+    logger.info(f"Write to parquet")
+
+    (file_df
+     # .limit(21)
+     .write
+     .parquet(path=output_path,
+              mode="overwrite")
+     )
+
+
+def csv_to_json(session, file_schema, input_path: str, output_path: str) -> None:
+    """
+    Read CSV-formatted data and output the results to json.
+    """
+    logger.info(f"Read CSV file")
+
+    file_df = (session
+               .read
+               .csv(input_path, header=True, schema=file_schema)
+               )
+
+    logger.info(f"Write to json")
+
+    (file_df
+     # .limit(21)
+     .write
+     .json(path=output_path,
+           mode="overwrite")
+     )
+
