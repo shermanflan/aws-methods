@@ -33,6 +33,8 @@ def psv_to_sql(session, file_schema, input_path: str, output_table: str) -> None
     """
     logger.info(f"Read PSV file: {input_path}")
 
+    # TODO: https://spark.apache.org/docs/latest/sql-data-sources-load-save-functions.html#run-sql-on-files-directly
+    # df = spark.sql("SELECT * FROM parquet.`examples/src/main/resources/users.parquet`")
     file_df = (session.
                read.
                csv(input_path, sep='|', header=False, schema=file_schema)
@@ -40,15 +42,22 @@ def psv_to_sql(session, file_schema, input_path: str, output_table: str) -> None
 
     logger.info(f"Write to SQL: {output_table}")
 
+    # Creates a table using schema
+    # (file_df
+    #  .write
+    #  .mode('overwrite')
+    #  .format("jdbc")
+    #  .option("url", os.environ['TARGET_JDBC_URL'])
+    #  .option("dbtable", output_table)
+    #  .save()
+    #  )
+
+    # Also creates a table using schema
     (file_df
      .write
-     .mode('overwrite')
-     .format("jdbc")
-     .option("url", os.environ['TARGET_JDBC_URL'])
-     .option("dbtable", output_table)
-     .option("user", os.environ['TARGET_DB_USER'])
-     .option("password", os.environ['TARGET_DB_PASSWORD'])
-     .save()
+     .jdbc(url=os.environ['TARGET_JDBC_URL'],
+           table=output_table,
+           mode='overwrite')
      )
 
 
@@ -58,16 +67,23 @@ def psv_to_parquet(session, file_schema, input_path: str, output_path: str) -> N
     """
     logger.info(f"Read PSV file")
 
-    file_df = (session.
-               read.
-               csv(input_path, sep='|', header=False, schema=file_schema)
+    file_df = (session
+               .read
+               .csv(input_path, sep='|', header=False, schema=file_schema)
                )
 
     logger.info(f"Write to parquet")
 
-    (file_df.
-     write.
-     format("parquet").
-     mode("overwrite").
-     save(output_path)
+    (file_df
+     .write
+     .format("parquet")
+     .mode("overwrite")
+     .save(output_path)
      )
+
+    # Alternative
+    # (file_df
+    #  .write
+    #  .parquet(path=output_path,
+    #           mode="overwrite")
+    #  )

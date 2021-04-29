@@ -27,9 +27,9 @@ docker tag ${AWS_PYSPARK_IMAGE}:${AWS_PYSPARK_IMAGE_VERSION} \
 echo "Pushing image [${REGISTRY_ID}.dkr.ecr.${REGION}.amazonaws.com/${AWS_PYSPARK_IMAGE}:${AWS_PYSPARK_IMAGE_VERSION}]"
 docker push ${REGISTRY_ID}.dkr.ecr.${REGION}.amazonaws.com/${AWS_PYSPARK_IMAGE}:${AWS_PYSPARK_IMAGE_VERSION}
 
-echo "Removing tagged image [${AWS_PYSPARK_APP_IMAGE}]"
-docker image rm \
-    ${REGISTRY_ID}.dkr.ecr.${REGION}.amazonaws.com/${AWS_PYSPARK_APP_IMAGE}:${AWS_PYSPARK_APP_IMAGE_VERSION}
+# echo "Removing tagged image [${AWS_PYSPARK_APP_IMAGE}]"
+# docker image rm \
+#     ${REGISTRY_ID}.dkr.ecr.${REGION}.amazonaws.com/${AWS_PYSPARK_APP_IMAGE}:${AWS_PYSPARK_APP_IMAGE_VERSION}
 
 echo "Tagging image [${AWS_PYSPARK_APP_IMAGE}]"
 docker tag ${AWS_PYSPARK_APP_IMAGE}:${AWS_PYSPARK_APP_IMAGE_VERSION} \

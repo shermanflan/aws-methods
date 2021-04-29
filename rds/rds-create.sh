@@ -2,6 +2,9 @@
 
 set -o nounset
 
+# Pricing: https://aws.amazon.com/rds/postgresql/pricing/?pg=pr&loc=3
+# db.t3.micro: 0.018 $/hr
+# db.t3.large: 0.145 $/hr
 aws rds create-db-instance \
     --db-name ${DB_NAME} \
     --db-instance-identifier ${PG_INSTANCE} \
@@ -9,7 +12,7 @@ aws rds create-db-instance \
     --engine postgres \
     --master-username ${PG_USER} \
     --master-user-password ${PG_PASSWORD} \
-    --allocated-storage 20 \
+    --allocated-storage 40 \
     --publicly-accessible
     # --engine-version 11.4
 
@@ -17,11 +20,11 @@ aws rds create-db-instance \
 # aws iam delete-role --role-name rds-s3-import-role
 # aws iam detach-role-policy \
 # --role-name rds-s3-import-role \
-# --policy-arn "arn:aws:iam::517533378855:policy/rds-s3-import-policy"
+# --policy-arn "arn:aws:iam::[123456789]:policy/rds-s3-import-policy"
 # aws iam delete-role-policy \
 #     --role-name rds-s3-import-role \
 #     --policy-name rds-s3-import-policy
-# aws iam delete-policy --policy-arn "arn:aws:iam::517533378855:policy/rds-s3-import-policy"
+# aws iam delete-policy --policy-arn "arn:aws:iam::123456789:policy/rds-s3-import-policy"
 
 # echo "Create RDS access to S3 policy"
 # aws iam create-policy \
@@ -64,7 +67,7 @@ aws rds create-db-instance \
 
 # echo "Attach RDS role to S3 policy"
 # aws iam attach-role-policy \
-#    --policy-arn arn:aws:iam::517533378855:policy/rds-s3-import-policy \
+#    --policy-arn arn:aws:iam::123456789:policy/rds-s3-import-policy \
 #    --role-name rds-s3-import-role
 
 declare -i max_tries=100
@@ -80,27 +83,27 @@ while [[ ${DB_READY} != "available" && ${max_tries} -gt 0 ]]
     ((max_tries = max_tries - 1))
 done
 
-echo 'Create aws_s3 extention'
-psql --username=${PG_USER} \
-    --password \
-    --host=${PG_INSTANCE_FQDN} \
-    --dbname=${DB_NAME} \
-    --port=5432 \
-    --command="CREATE EXTENSION aws_s3 CASCADE;"
+# echo 'Create aws_s3 extention'
+# psql --username=${PG_USER} \
+#     --password \
+#     --host=${PG_INSTANCE_FQDN} \
+#     --dbname=${DB_NAME} \
+#     --port=5432 \
+#     --command="CREATE EXTENSION aws_s3 CASCADE;"
 
-echo 'Create database tables'
-psql --username=${PG_USER} \
-    --password \
-    --host=${PG_INSTANCE_FQDN} \
-    --dbname=${DB_NAME} \
-    --port=5432 \
-    --file ./create-db.sql
+# echo 'Create database tables'
+# psql --username=${PG_USER} \
+#     --password \
+#     --host=${PG_INSTANCE_FQDN} \
+#     --dbname=${DB_NAME} \
+#     --port=5432 \
+#     --file ./create-db.sql
 
-echo "Add role to RDS instance"
-aws rds add-role-to-db-instance \
-   --db-instance-identifier ${PG_INSTANCE} \
-   --feature-name s3Import \
-   --role-arn arn:aws:iam::517533378855:role/rds-s3-import-role \
-   --region us-east-2
+# echo "Add role to RDS instance"
+# aws rds add-role-to-db-instance \
+#    --db-instance-identifier ${PG_INSTANCE} \
+#    --feature-name s3Import \
+#    --role-arn arn:aws:iam::123456789:role/rds-s3-import-role \
+#    --region us-east-2
 
 set +o nounset
