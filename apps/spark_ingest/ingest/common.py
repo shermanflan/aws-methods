@@ -129,8 +129,8 @@ def psv_to_sql(session, file_schema, input_path: str,
 
     file_df = (session
                .read
-               .csv(input_path, sep='|', header=False,
-                   schema=file_schema)
+               .csv(input_path,
+                    sep='|', header=False, schema=file_schema)
                )
 
     logger.info(f"Write to SQL: {output_table}")
@@ -157,8 +157,8 @@ def psv_to_parquet(session, file_schema, input_path: str,
 
     file_df = (session
                .read
-               .csv(input_path, sep='|', header=False,
-                    schema=file_schema)
+               .csv(input_path,
+                    sep='|', header=False, schema=file_schema)
                )
 
     logger.info(f"Write to parquet")
