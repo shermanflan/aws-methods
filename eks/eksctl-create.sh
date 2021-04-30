@@ -19,7 +19,6 @@ eksctl create cluster \
     --instance-types="m5.xlarge" \
     --nodes=4 \
     --node-volume-size=80
-
 #    --with-oidc
 
 # OR: Inspired by https://github.com/aws-samples/amazon-eks-apache-spark-etl-sample/blob/master/example/eksctl.yaml
@@ -36,9 +35,22 @@ echo "Creating AWS client config secrets"
 kubectl create secret generic \
     aws-client-secret \
     -n default \
-    --from-literal=AWS_ACCESS_KEY_ID=$P3_AWS_ACCESS_KEY_ID \
-    --from-literal=AWS_SECRET_ACCESS_KEY=$P3_AWS_SECRET_ACCESS_KEY \
+    --from-literal=AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+    --from-literal=AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
     --from-literal=AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION
+
+echo "Creating AWS s3 config secrets"
+kubectl create secret generic \
+    aws-s3-secret \
+    -n default \
+    --from-literal=P3_BUCKET=$P3_BUCKET \
+    --from-literal=S3_PREFIX=$S3_PREFIX \
+    --from-literal=P3_AWS_ACCESS_KEY=$P3_AWS_ACCESS_KEY \
+    --from-literal=P3_AWS_SECRET_KEY=$P3_AWS_SECRET_KEY \
+    --from-literal=BK_AWS_ACCESS_KEY=$BK_AWS_ACCESS_KEY \
+    --from-literal=BK_AWS_SECRET_KEY=$BK_AWS_SECRET_KEY \
+    --from-literal=CO_AWS_ACCESS_KEY=$CO_AWS_ACCESS_KEY \
+    --from-literal=CO_AWS_SECRET_KEY=$CO_AWS_SECRET_KEY
 
 echo "Creating AWS db connection secrets"
 kubectl create secret generic \

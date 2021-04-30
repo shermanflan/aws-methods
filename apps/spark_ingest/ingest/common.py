@@ -1,13 +1,15 @@
 from datetime import date
 import logging
-import os
+import re
 
 from pyspark.sql import DataFrame
 from pyspark.sql.functions import (
-    col, sum as spark_sum, date_trunc
+    col, sum as spark_sum, date_trunc, to_timestamp,
+    lit
 )
 
 import ingest
+from ingest.datasource_config import S3_SUFFIX
 
 logger = logging.getLogger(__name__)
 
@@ -133,12 +135,16 @@ def psv_to_sql(session, file_schema, input_path: str,
 
     logger.info(f"Write to SQL: {output_table}")
 
+    load_date = re.sub(r"rh_(?P<dt>\d+).gz", "\g<dt>", S3_SUFFIX, re.I)
+
     # Creates a table with given schema
     (file_df
+     # .limit(21)
+     .withColumn("created_on", to_timestamp(lit(load_date), "yyyyMMdd"))
      .write
      .jdbc(url=target_jdbc,
            table=output_table,
-           mode='overwrite')
+           mode='append')
      )
 
 

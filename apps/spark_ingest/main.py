@@ -78,13 +78,13 @@ def main(filepath: str, output_path: str) -> None:
     logger.info(f"Load process started")
 
     psv_filter_to_sql(spark,
-                      filter_date=date.today() - timedelta(days=1),
+                      filter_date=date.today() - timedelta(days=6),
                       target_jdbc=os.environ['TARGET_JDBC_URL'],
                       **DS_SUMMARY)
 
     for i, task in enumerate(DS_CONFIG[:], start=1):
 
-        task_name = os.path.split(task['input'])[1]
+        task_name = os.path.split(task['input_path'])[1]
         logger.info(f"Loading {task_name} ({i} of {len(DS_CONFIG)})")
 
         psv_to_sql(spark,

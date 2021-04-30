@@ -12,7 +12,7 @@ aws rds create-db-instance \
     --engine postgres \
     --master-username ${PG_USER} \
     --master-user-password ${PG_PASSWORD} \
-    --allocated-storage 40 \
+    --allocated-storage 80 \
     --publicly-accessible
     # --engine-version 11.4
 

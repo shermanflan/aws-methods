@@ -31,14 +31,16 @@ spec:
         --conf spark.kubernetes.container.image.pullPolicy=Always \ 
         --conf spark.kubernetes.authenticate.driver.serviceAccountName=spark \
         --conf spark.kubernetes.executor.deleteOnTermination=false \
-        --conf spark.kubernetes.driverEnv.S3_PREFIX=s3a://my_bucket/prefix \
-        --conf spark.kubernetes.driverEnv.S3_SUFFIX=suffix_20210428.gz \
-        --conf spark.kubernetes.driver.secretKeyRef.AWS_ACCESS_KEY_ID=aws-client-secret:AWS_ACCESS_KEY_ID \
-        --conf spark.kubernetes.driver.secretKeyRef.AWS_SECRET_ACCESS_KEY=aws-client-secret:AWS_SECRET_ACCESS_KEY \
+        --conf spark.kubernetes.driverEnv.S3_SUFFIX=rh_20210428.gz \
+        --conf spark.kubernetes.driver.secretKeyRef.P3_BUCKET=aws-s3-secret:P3_BUCKET \
+        --conf spark.kubernetes.driver.secretKeyRef.S3_PREFIX=aws-s3-secret:S3_PREFIX \
+        --conf spark.kubernetes.driver.secretKeyRef.P3_AWS_ACCESS_KEY=aws-s3-secret:P3_AWS_ACCESS_KEY \
+        --conf spark.kubernetes.driver.secretKeyRef.P3_AWS_SECRET_KEY=aws-s3-secret:P3_AWS_SECRET_KEY \
+        --conf spark.kubernetes.driver.secretKeyRef.BK_AWS_ACCESS_KEY=aws-s3-secret:BK_AWS_ACCESS_KEY \
+        --conf spark.kubernetes.driver.secretKeyRef.BK_AWS_SECRET_KEY=aws-s3-secret:BK_AWS_SECRET_KEY \
+        --conf spark.kubernetes.driver.secretKeyRef.CO_AWS_ACCESS_KEY=aws-s3-secret:CO_AWS_ACCESS_KEY \
+        --conf spark.kubernetes.driver.secretKeyRef.CO_AWS_SECRET_KEY=aws-s3-secret:CO_AWS_SECRET_KEY \
         --conf spark.kubernetes.driver.secretKeyRef.TARGET_JDBC_URL=aws-connect-secret:TARGET_JDBC_URL \
-        --conf spark.kubernetes.executor.secretKeyRef.AWS_ACCESS_KEY_ID=aws-client-secret:AWS_ACCESS_KEY_ID \
-        --conf spark.kubernetes.executor.secretKeyRef.AWS_SECRET_ACCESS_KEY=aws-client-secret:AWS_SECRET_ACCESS_KEY \
-        --conf spark.kubernetes.executor.secretKeyRef.TARGET_JDBC_URL=aws-connect-secret:TARGET_JDBC_URL \
         --conf spark.jars.ivy=/tmp/.ivy \
         local:///opt/spark/spark-ingest/main.py \
         --filepath s3a://bangkok/mnm_dataset.csv"
