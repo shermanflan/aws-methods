@@ -17,7 +17,7 @@ from pyspark.sql import SparkSession
 
 import ingest
 from ingest.common import (
-    csv_to_sql, psv_to_sql, psv_filter_to_sql
+    from_csv, to_sql, psv_to_sql, psv_filter_to_sql
 )
 from ingest.datasource_config import (
     DS_CONFIG, DS_SUMMARY
@@ -77,29 +77,25 @@ def main(filepath: str, output_path: str) -> None:
     start = datetime.now()
     logger.info(f"Load process started")
 
-    csv_to_sql(spark,
-               target_jdbc=os.environ['TARGET_JDBC_URL'],
-               file_schema=FIRE_CONFIG,
-               input_path=filepath,
-               output_table="public.stage_sf_fire_calls_1")
+    test_df = from_csv(spark,
+                       file_schema=FIRE_CONFIG,
+                       input_path=filepath)
 
-    csv_to_sql(spark,
-               target_jdbc=os.environ['TARGET_JDBC_URL'],
-               file_schema=FIRE_CONFIG,
-               input_path=filepath,
-               output_table="public.stage_sf_fire_calls_2")
+    to_sql(test_df,
+           output_table="public.stage_sf_fire_calls_1",
+           target_jdbc=os.environ['TARGET_JDBC_URL'])
 
-    csv_to_sql(spark,
-               target_jdbc=os.environ['TARGET_JDBC_URL'],
-               file_schema=FIRE_CONFIG,
-               input_path=filepath,
-               output_table="public.stage_sf_fire_calls_3")
+    to_sql(test_df,
+           output_table="public.stage_sf_fire_calls_2",
+           target_jdbc=os.environ['TARGET_JDBC_URL'])
 
-    csv_to_sql(spark,
-               target_jdbc=os.environ['TARGET_JDBC_URL'],
-               file_schema=FIRE_CONFIG,
-               input_path=filepath,
-               output_table="public.stage_sf_fire_calls_4")
+    to_sql(test_df,
+           output_table="public.stage_sf_fire_calls_3",
+           target_jdbc=os.environ['TARGET_JDBC_URL'])
+
+    to_sql(test_df,
+           output_table="public.stage_sf_fire_calls_4",
+           target_jdbc=os.environ['TARGET_JDBC_URL'])
 
     # psv_filter_to_sql(spark,
     #                   filter_date=date.today() - timedelta(days=6),

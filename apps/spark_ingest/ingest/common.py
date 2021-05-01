@@ -223,7 +223,6 @@ def csv_to_sql(session, file_schema, input_path: str,
                output_table: str, target_jdbc: str) -> None:
     """
     Read CSV-formatted data and output the results to SQL.
-    ```
 
     :param session: the Spark session
     :param file_schema: the schema struct array
@@ -232,7 +231,7 @@ def csv_to_sql(session, file_schema, input_path: str,
     :param target_jdbc: sql target (connection string)
     :return: None
     """
-    logger.info(f"Read PSV file: {input_path}")
+    logger.info(f"Read CSV file: {input_path}")
 
     file_df = (session
                .read
@@ -243,6 +242,47 @@ def csv_to_sql(session, file_schema, input_path: str,
 
     # Creates a table with given schema
     (file_df
+     # .limit(21)
+     .withColumn("created_on",
+                 to_timestamp(lit(datetime.now()), "yyyyMMdd"))
+     .write
+     .jdbc(url=target_jdbc,
+           table=output_table,
+           mode='append')
+     )
+
+
+def from_csv(session, file_schema, input_path: str) -> DataFrame:
+    """
+    Read CSV-formatted data.
+
+    :param session: the Spark session
+    :param file_schema: the schema struct array
+    :param input_path: the remote data lake path (s3a://, wasbs://, etc.)
+    :return: DataFrame
+    """
+    logger.info(f"Read CSV file: {input_path}")
+
+    return (session
+            .read
+            .csv(input_path, header=True, schema=file_schema)
+            )
+
+
+def to_sql(input_df: DataFrame, output_table: str,
+           target_jdbc: str) -> None:
+    """
+    Output the DataFrame to SQL.
+
+    :param input_df: the input DataFrame
+    :param output_table: the target SQL table (schema.table)
+    :param target_jdbc: sql target (connection string)
+    :return: None
+    """
+    logger.info(f"Write to SQL: {output_table}")
+
+    # Creates a table with given schema
+    (input_df
      # .limit(21)
      .withColumn("created_on",
                  to_timestamp(lit(datetime.now()), "yyyyMMdd"))
