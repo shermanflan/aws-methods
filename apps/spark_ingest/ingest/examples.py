@@ -12,7 +12,7 @@ from pyspark.sql.types import (
 )
 
 import ingest
-
+from common import to_parquet
 
 logger = logging.getLogger(__name__)
 
@@ -196,3 +196,105 @@ def run_mnms(session, filepath: str) -> None:
     logger.info(f"M&Ms agg 2")
 
     counts_ca.show(n=10, truncate=False)
+
+
+def spark_sql(spark_session, filepath, output_path):
+    """
+    Examples using Spark SQL and built in support for Hive managed
+    tables.
+    """
+    file_schema = """
+        `date` STRING, `delay` INT, `distance` INT,  
+        `origin` STRING, `destination` STRING
+    """
+    csv_df = (spark_session
+              .read
+              .csv(filepath, header=True, schema=file_schema)
+              )
+    to_parquet(csv_df, output_path)
+
+    spark_session.sql("CREATE DATABASE learn_spark_db")
+    spark_session.sql("USE learn_spark_db")
+
+    csv_df.createOrReplaceTempView("vw_us_delay_flights")
+
+    spark_session.sql("""
+        SELECT  distance, origin, destination 
+        FROM    vw_us_delay_flights 
+        WHERE   distance > 1000 
+        ORDER BY distance DESC
+    """).show(10)
+
+    spark_session.sql("""
+        SELECT  date, delay, origin, destination 
+        FROM    vw_us_delay_flights 
+        WHERE   delay > 120 
+                AND ORIGIN = 'SFO' 
+                AND DESTINATION = 'ORD' 
+        ORDER by delay DESC
+    """).show(10)
+
+    spark_session.sql("""
+        SELECT  delay, origin, destination,
+                CASE
+                    WHEN delay > 360 THEN 'Very Long Delays'
+                    WHEN delay >= 120 AND delay <= 360 THEN 'Long Delays'
+                    WHEN delay >= 60 AND delay < 120 THEN 'Short Delays'
+                    WHEN delay > 0 and delay < 60 THEN 'Tolerable Delays'
+                    WHEN delay = 0 THEN 'No Delays'
+                    ELSE 'Early'
+                END AS Flight_Delays
+        FROM    vw_us_delay_flights
+        ORDER BY origin, delay DESC
+    """).show(10)
+
+    # Create managed table (hive)
+    # Tables persist after the Spark application terminates
+    spark_session.sql("""
+        CREATE TABLE IF NOT EXISTS managed_us_delay_flights 
+        (
+            date        STRING, 
+            delay       INT,
+            distance    INT,
+            origin      STRING,
+            destination STRING
+        )
+    """)
+
+    # Synonymous
+    # (csv_df
+    #  .write
+    #  .saveAsTable("managed_us_delay_flights")
+    #  )
+
+    # Create Views
+    spark_session.sql("""
+        CREATE OR REPLACE TEMPORARY VIEW vw_us_delay_flights_s3 
+        USING PARQUET
+        OPTIONS (
+            path "s3a://condesa/departuredelays"
+        )
+    """)
+
+    spark_session.sql("""
+        SELECT * FROM vw_us_delay_flights_s3 LIMIT 7
+    """).show()
+
+    spark_session.sql("""
+        CREATE OR REPLACE TEMPORARY VIEW vw_mnm_dataset_csv_s3
+        USING CSV
+        OPTIONS (
+            path "s3a://bangkok/mnm_dataset.csv",
+            header "true",
+            inferSchema "true",
+            mode "FAILFAST"
+        )
+    """)
+
+    spark_session.sql("""
+        SELECT * FROM vw_mnm_dataset_csv_s3 LIMIT 11
+    """).show()
+
+    spark_session.catalog.listDatabases()
+    spark_session.catalog.listTables()
+    spark_session.catalog.listColumns("managed_us_delay_flights")

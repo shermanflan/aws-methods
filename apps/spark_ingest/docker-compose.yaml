@@ -11,9 +11,10 @@ services:
       "/opt/spark/bin/spark-submit \
       --name spark-ingest \
       local:///opt/spark/spark-ingest/main.py \
-      --filepath s3a://bangkok/sf-fire-calls.csv
-      --output_path s3a://condesa/sf-fire-calls.json"
+      --filepath s3a://bangkok/departuredelays.csv
+      --output_path s3a://condesa/departuredelays"
     ]
+    #--filepath s3a://bangkok/sf-fire-calls.csv
     #--filepath s3a://bangkok/mnm_dataset.csv
     #--filepath s3a://bangkok/blogs.json"
     env_file: .env
@@ -21,3 +22,4 @@ services:
       - LOG_LEVEL=WARN
     volumes:
       - ./local_config:/opt/spark/conf
+      - ./local_data:/opt/spark/hive_warehouse

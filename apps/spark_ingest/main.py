@@ -17,7 +17,8 @@ from pyspark.sql import SparkSession
 
 import ingest
 from ingest.common import (
-    from_csv, to_sql, psv_to_sql, psv_filter_to_sql
+    from_csv, to_sql, psv_to_sql, psv_filter_to_sql,
+    to_parquet
 )
 from ingest.datasource_config import (
     DS_CONFIG, DS_SUMMARY
@@ -44,76 +45,65 @@ def main(filepath: str, output_path: str) -> None:
     TODO: Consider optimizing the S3A for I/O.
     - https://spark.apache.org/docs/3.1.1/cloud-integration.html#recommended-settings-for-writing-to-object-stores
     """
-    spark = (SparkSession
-             .builder
-             .appName("spark_ingest_poc")
-             .config(f"fs.s3a.bucket.{os.environ['P3_BUCKET']}.access.key",
-                     os.environ['P3_AWS_ACCESS_KEY'])
-             .config(f"fs.s3a.bucket.{os.environ['P3_BUCKET']}.secret.key",
-                     os.environ['P3_AWS_SECRET_KEY'])
-             .config("spark.hadoop.fs.s3a.bucket.bangkok.access.key",
-                     os.environ['BK_AWS_ACCESS_KEY'])
-             .config("spark.hadoop.fs.s3a.bucket.bangkok.secret.key",
-                     os.environ['BK_AWS_SECRET_KEY'])
-             .config("spark.hadoop.fs.s3a.bucket.condesa.access.key",
-                     os.environ['CO_AWS_ACCESS_KEY'])
-             .config("spark.hadoop.fs.s3a.bucket.condesa.secret.key",
-                     os.environ['CO_AWS_SECRET_KEY'])
-             # TODO: S3A Optimizations
-             # .config("spark.hadoop.fs.s3a.committer.name", "directory")
-             # .config("spark.sql.sources.commitProtocolClass",
-             #         "org.apache.spark.internal.io.cloud.PathOutputCommitProtocol")
-             # .config("spark.sql.parquet.output.committer.class",
-             #         "org.apache.spark.internal.io.cloud.BindingParquetOutputCommitter")
-             # TODO: Parquet Optimizations
-             # .config("spark.hadoop.parquet.enable.summary-metadata", "false")
-             # .config("spark.sql.parquet.mergeSchema", "false")
-             # .config("spark.sql.parquet.filterPushdown", "true")
-             # .config("spark.sql.hive.metastorePartitionPruning", "true")
-             .getOrCreate()
-             )
-    spark.sparkContext.setLogLevel(LOG_LEVEL)
+    spark_session = (SparkSession
+                     .builder
+                     .appName("spark_ingest_poc")
+                     .config(f"fs.s3a.bucket.{os.environ['P3_BUCKET']}.access.key",
+                             os.environ['P3_AWS_ACCESS_KEY'])
+                     .config(f"fs.s3a.bucket.{os.environ['P3_BUCKET']}.secret.key",
+                             os.environ['P3_AWS_SECRET_KEY'])
+                     .config("spark.hadoop.fs.s3a.bucket.bangkok.access.key",
+                             os.environ['BK_AWS_ACCESS_KEY'])
+                     .config("spark.hadoop.fs.s3a.bucket.bangkok.secret.key",
+                             os.environ['BK_AWS_SECRET_KEY'])
+                     .config("spark.hadoop.fs.s3a.bucket.condesa.access.key",
+                             os.environ['CO_AWS_ACCESS_KEY'])
+                     .config("spark.hadoop.fs.s3a.bucket.condesa.secret.key",
+                             os.environ['CO_AWS_SECRET_KEY'])
+                     # TODO: S3A Optimizations
+                     # .config("spark.hadoop.fs.s3a.committer.name", "directory")
+                     # .config("spark.sql.sources.commitProtocolClass",
+                     #         "org.apache.spark.internal.io.cloud.PathOutputCommitProtocol")
+                     # .config("spark.sql.parquet.output.committer.class",
+                     #         "org.apache.spark.internal.io.cloud.BindingParquetOutputCommitter")
+                     # TODO: Parquet Optimizations
+                     # .config("spark.hadoop.parquet.enable.summary-metadata", "false")
+                     # .config("spark.sql.parquet.mergeSchema", "false")
+                     # .config("spark.sql.parquet.filterPushdown", "true")
+                     # .config("spark.sql.hive.metastorePartitionPruning", "true")
+                     .config("spark.sql.warehouse.dir", "/opt/spark/hive_warehouse")
+                     .config("spark.sql.catalogImplementation", "hive")
+                     .getOrCreate()
+                     )
+    spark_session.sparkContext.setLogLevel(LOG_LEVEL)
 
     start = datetime.now()
     logger.info(f"Load process started")
 
-    test_df = from_csv(spark,
+    test_df = from_csv(spark_session,
                        file_schema=FIRE_CONFIG,
                        input_path=filepath)
-
     to_sql(test_df,
            output_table="public.stage_sf_fire_calls_1",
            target_jdbc=os.environ['TARGET_JDBC_URL'])
 
-    to_sql(test_df,
-           output_table="public.stage_sf_fire_calls_2",
-           target_jdbc=os.environ['TARGET_JDBC_URL'])
+    psv_filter_to_sql(spark_session,
+                      filter_date=date.today() - timedelta(days=6),
+                      target_jdbc=os.environ['TARGET_JDBC_URL'],
+                      **DS_SUMMARY)
 
-    to_sql(test_df,
-           output_table="public.stage_sf_fire_calls_3",
-           target_jdbc=os.environ['TARGET_JDBC_URL'])
+    for i, task in enumerate(DS_CONFIG[:], start=1):
 
-    to_sql(test_df,
-           output_table="public.stage_sf_fire_calls_4",
-           target_jdbc=os.environ['TARGET_JDBC_URL'])
+        task_name = os.path.split(task['input_path'])[1]
+        logger.info(f"Loading {task_name} ({i} of {len(DS_CONFIG)})")
 
-    # psv_filter_to_sql(spark,
-    #                   filter_date=date.today() - timedelta(days=6),
-    #                   target_jdbc=os.environ['TARGET_JDBC_URL'],
-    #                   **DS_SUMMARY)
-    #
-    # for i, task in enumerate(DS_CONFIG[:], start=1):
-    #
-    #     task_name = os.path.split(task['input_path'])[1]
-    #     logger.info(f"Loading {task_name} ({i} of {len(DS_CONFIG)})")
-    #
-    #     psv_to_sql(spark,
-    #                target_jdbc=os.environ['TARGET_JDBC_URL'],
-    #                **task)
+        psv_to_sql(spark_session,
+                   target_jdbc=os.environ['TARGET_JDBC_URL'],
+                   **task)
 
     logger.info(f"Load process finished in {datetime.now() - start}")
 
-    spark.stop()
+    spark_session.stop()
 
 
 if __name__ == "__main__":

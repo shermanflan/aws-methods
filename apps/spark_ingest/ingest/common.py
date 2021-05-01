@@ -52,6 +52,8 @@ def psv_filter_to_sql(session, file_schema, input_path: str,
     """
     logger.info(f"Read PSV file: {input_path}")
 
+    # Compare to fluent verbose pattern:
+    # DataFrameReader.format(args).option("key", "value").schema(args).load()
     file_df = (session
                .read
                .csv(input_path, sep='|', header=False, schema=file_schema)
@@ -79,7 +81,10 @@ def psv_filter_to_sql(session, file_schema, input_path: str,
            mode='overwrite')
      )
 
-    # Verbosity++
+    # Typical fluent verbose patterns:
+    # DataFrameWriter.format(args).option(args).bucketBy(args).partitionBy(args).save(path)
+    # DataFrameWriter.format(args).option(args).sortBy(args).saveAsTable(table)
+    #
     # (file_df
     #  .write
     #  .mode('overwrite')
@@ -193,7 +198,7 @@ def csv_to_parquet(session, file_schema, input_path: str,
     logger.info(f"Write to parquet")
 
     (file_df
-     # .limit(21)
+     .limit(21)
      .write
      .parquet(path=output_path, mode="overwrite")
      )
@@ -269,6 +274,36 @@ def from_csv(session, file_schema, input_path: str) -> DataFrame:
             )
 
 
+def from_json(session, file_schema, input_path: str) -> DataFrame:
+    """
+    Read single-line JSON-formatted data.
+
+    :param session: the Spark session
+    :param file_schema: the schema struct array
+    :param input_path: the remote data lake path (s3a://, wasbs://, etc.)
+    :return: DataFrame
+    """
+    logger.info(f"Read JSONL file: {input_path}")
+
+    return (session
+            .read
+            .json(input_path, multiLine=False)
+            )
+
+
+def to_json(input_df: DataFrame, output_path: str) -> None:
+    """
+    Read CSV-formatted data and output the results to json.
+    """
+    logger.info(f"Write to json")
+
+    (input_df
+     # .limit(21)
+     .write
+     .json(path=output_path, mode="overwrite", compression="snappy")
+     )
+
+
 def to_sql(input_df: DataFrame, output_table: str,
            target_jdbc: str) -> None:
     """
@@ -292,3 +327,16 @@ def to_sql(input_df: DataFrame, output_table: str,
            mode='append')
      )
 
+
+def to_parquet(input_df: DataFrame, output_path: str) -> None:
+    """
+    Output the DataFrame to parquet.
+    """
+
+    logger.info(f"Write to parquet")
+
+    (input_df
+     .limit(21)
+     .write
+     .parquet(path=output_path, mode="overwrite")
+     )
