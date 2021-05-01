@@ -249,6 +249,6 @@ def csv_to_sql(session, file_schema, input_path: str,
      .write
      .jdbc(url=target_jdbc,
            table=output_table,
-           mode='overwrite')
+           mode='append')
      )
 
