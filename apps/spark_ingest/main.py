@@ -17,13 +17,13 @@ from pyspark.sql import SparkSession
 
 import ingest
 from ingest.common import (
-    psv_to_sql, psv_filter_to_sql
+    csv_to_sql, psv_to_sql, psv_filter_to_sql
 )
 from ingest.datasource_config import (
     DS_CONFIG, DS_SUMMARY
 )
 from ingest.examples import (
-    run_mnms, process_schema, FIRE_CONFIG
+    process_large_csv, process_schema, FIRE_CONFIG
 )
 
 logger = logging.getLogger(__name__)
@@ -77,19 +77,43 @@ def main(filepath: str, output_path: str) -> None:
     start = datetime.now()
     logger.info(f"Load process started")
 
-    psv_filter_to_sql(spark,
-                      filter_date=date.today() - timedelta(days=6),
-                      target_jdbc=os.environ['TARGET_JDBC_URL'],
-                      **DS_SUMMARY)
+    csv_to_sql(spark,
+               target_jdbc=os.environ['TARGET_JDBC_URL'],
+               file_schema=FIRE_CONFIG,
+               input_path=filepath,
+               output_table="public.stage_sf_fire_calls_1")
 
-    for i, task in enumerate(DS_CONFIG[:], start=1):
+    csv_to_sql(spark,
+               target_jdbc=os.environ['TARGET_JDBC_URL'],
+               file_schema=FIRE_CONFIG,
+               input_path=filepath,
+               output_table="public.stage_sf_fire_calls_2")
 
-        task_name = os.path.split(task['input_path'])[1]
-        logger.info(f"Loading {task_name} ({i} of {len(DS_CONFIG)})")
+    csv_to_sql(spark,
+               target_jdbc=os.environ['TARGET_JDBC_URL'],
+               file_schema=FIRE_CONFIG,
+               input_path=filepath,
+               output_table="public.stage_sf_fire_calls_3")
 
-        psv_to_sql(spark,
-                   target_jdbc=os.environ['TARGET_JDBC_URL'],
-                   **task)
+    csv_to_sql(spark,
+               target_jdbc=os.environ['TARGET_JDBC_URL'],
+               file_schema=FIRE_CONFIG,
+               input_path=filepath,
+               output_table="public.stage_sf_fire_calls_4")
+
+    # psv_filter_to_sql(spark,
+    #                   filter_date=date.today() - timedelta(days=6),
+    #                   target_jdbc=os.environ['TARGET_JDBC_URL'],
+    #                   **DS_SUMMARY)
+    #
+    # for i, task in enumerate(DS_CONFIG[:], start=1):
+    #
+    #     task_name = os.path.split(task['input_path'])[1]
+    #     logger.info(f"Loading {task_name} ({i} of {len(DS_CONFIG)})")
+    #
+    #     psv_to_sql(spark,
+    #                target_jdbc=os.environ['TARGET_JDBC_URL'],
+    #                **task)
 
     logger.info(f"Load process finished in {datetime.now() - start}")
 

@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 import logging
 import re
 
@@ -139,7 +139,7 @@ def psv_to_sql(session, file_schema, input_path: str,
 
     # Creates a table with given schema
     (file_df
-     # .limit(21)
+     .limit(21)
      .withColumn("created_on", to_timestamp(lit(load_date), "yyyyMMdd"))
      .write
      .jdbc(url=target_jdbc,
@@ -216,5 +216,39 @@ def csv_to_json(session, file_schema, input_path: str, output_path: str) -> None
      # .limit(21)
      .write
      .json(path=output_path, mode="overwrite")
+     )
+
+
+def csv_to_sql(session, file_schema, input_path: str,
+               output_table: str, target_jdbc: str) -> None:
+    """
+    Read CSV-formatted data and output the results to SQL.
+    ```
+
+    :param session: the Spark session
+    :param file_schema: the schema struct array
+    :param input_path: the remote data lake path (s3a://, wasbs://, etc.)
+    :param output_table: the target SQL table (schema.table)
+    :param target_jdbc: sql target (connection string)
+    :return: None
+    """
+    logger.info(f"Read PSV file: {input_path}")
+
+    file_df = (session
+               .read
+               .csv(input_path, header=True, schema=file_schema)
+               )
+
+    logger.info(f"Write to SQL: {output_table}")
+
+    # Creates a table with given schema
+    (file_df
+     # .limit(21)
+     .withColumn("created_on",
+                 to_timestamp(lit(datetime.now()), "yyyyMMdd"))
+     .write
+     .jdbc(url=target_jdbc,
+           table=output_table,
+           mode='overwrite')
      )
 
