@@ -24,7 +24,8 @@ from ingest.datasource_config import (
     DS_CONFIG, DS_SUMMARY
 )
 from ingest.examples import (
-    process_large_csv, process_schema, FIRE_CONFIG
+    process_large_csv, process_schema, spark_vector_udf,
+    FIRE_CONFIG
 )
 
 logger = logging.getLogger(__name__)
@@ -79,13 +80,6 @@ def main(filepath: str, output_path: str) -> None:
 
     start = datetime.now()
     logger.info(f"Load process started")
-
-    test_df = from_csv(spark_session,
-                       file_schema=FIRE_CONFIG,
-                       input_path=filepath)
-    to_sql(test_df,
-           output_table="public.stage_sf_fire_calls_1",
-           target_jdbc=os.environ['TARGET_JDBC_URL'])
 
     psv_filter_to_sql(spark_session,
                       filter_date=date.today() - timedelta(days=6),

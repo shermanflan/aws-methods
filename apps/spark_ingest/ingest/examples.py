@@ -2,17 +2,18 @@
 """
 import logging
 
+import pandas as pd
 from pyspark.sql.functions import (
     col, concat, expr, lit, sum as spark_sum, to_timestamp,
-    year as spark_year
+    year as spark_year, pandas_udf
 )
 from pyspark.sql.types import (
     StringType, StructType, StructField, IntegerType,
-    ArrayType, BooleanType, FloatType
+    ArrayType, BooleanType, FloatType, LongType
 )
 
 import ingest
-from common import to_parquet
+from ingest.common import to_parquet
 
 logger = logging.getLogger(__name__)
 
@@ -298,3 +299,32 @@ def spark_sql(spark_session, filepath, output_path):
     spark_session.catalog.listDatabases()
     spark_session.catalog.listTables()
     spark_session.catalog.listColumns("managed_us_delay_flights")
+
+
+def spark_udf(spark_session):
+    """
+    Examples using Spark User-Defined Functions.
+    """
+    def cubed(s):
+        return s * s * s
+
+    spark_session.udf.register("cubed", cubed, LongType())
+
+    spark_session.range(1, 9).createOrReplaceTempView("udf_test")
+
+    spark_session.sql("SELECT id, cubed(id) AS id_cubed FROM udf_test").show()
+
+
+def spark_vector_udf(spark_session):
+    """
+    Examples using Spark User-Defined Functions (vectorized).
+    """
+    def cubed(s: pd.Series) -> pd.Series:
+        return s * s * s
+
+    cubed_udf = pandas_udf(cubed, returnType=LongType())
+
+    df = spark_session.range(1, 4)
+
+    # Execute function as a Spark vectorized UDF
+    df.select("id", cubed_udf(col("id"))).show()

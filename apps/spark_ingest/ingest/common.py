@@ -59,26 +59,36 @@ def psv_filter_to_sql(session, file_schema, input_path: str,
                .csv(input_path, sep='|', header=False, schema=file_schema)
                .where((col("extraction_date") > filter_date))
                )
+    file_df.createOrReplaceTempView("vw_extraction_summary")
 
-    logger.info(f"Filtering contents > {filter_date}")
+    logger.info(f"Grouped summary, filtered > {filter_date}")
 
-    counts_df = (file_df
-                 .withColumnRenamed("object", "section")
-                 .withColumn("extraction_day", date_trunc('day', 'extraction_date'))
-                 .select('section', 'extraction_day', 'count')
-                 .groupBy('section', 'extraction_day')
-                 .agg(spark_sum('count').alias("record_count"))
-                 )
+    # Spark SQL
+    counts_df = session.sql("""
+        SELECT  object as section,
+                date_trunc('day', extraction_date) as extraction_day,
+                SUM(count) as record_count
+        FROM    vw_extraction_summary
+        GROUP BY object, date_trunc('day', extraction_date)
+        ORDER BY extraction_day DESC, section
+    """)
+    # Equivalent DataFrame API
+    # counts_df = (file_df
+    #              .withColumnRenamed("object", "section")
+    #              .withColumn("extraction_day", date_trunc('day', 'extraction_date'))
+    #              .select('section', 'extraction_day', 'count')
+    #              .groupBy('section', 'extraction_day')
+    #              .agg(spark_sum('count').alias("record_count"))
+    #              )
     counts_df.show(n=21, truncate=False)
 
-    logger.info(f"Write to SQL: {output_table}")
+    logger.info(f"Write to SQL (4): {output_table}")
 
-    # Creates a table with given schema
     (counts_df
      .write
-     .jdbc(url=target_jdbc,
-           table=output_table,
-           mode='overwrite')
+     # Use a multiple of the number of Spark workers
+     .option('numPartitions', '4')
+     .jdbc(url=target_jdbc, table=output_table, mode='overwrite')
      )
 
     # Typical fluent verbose patterns:
@@ -138,15 +148,16 @@ def psv_to_sql(session, file_schema, input_path: str,
                     sep='|', header=False, schema=file_schema)
                )
 
-    logger.info(f"Write to SQL: {output_table}")
+    logger.info(f"Write to SQL (4): {output_table}")
 
     load_date = re.sub(r"rh_(?P<dt>\d+).gz", "\g<dt>", S3_SUFFIX, re.I)
 
     # Creates a table with given schema
     (file_df
-     .limit(21)
+     # .limit(21)
      .withColumn("created_on", to_timestamp(lit(load_date), "yyyyMMdd"))
      .write
+     .option('numPartitions', '4')
      .jdbc(url=target_jdbc,
            table=output_table,
            mode='append')
@@ -198,7 +209,7 @@ def csv_to_parquet(session, file_schema, input_path: str,
     logger.info(f"Write to parquet")
 
     (file_df
-     .limit(21)
+     # .limit(21)
      .write
      .parquet(path=output_path, mode="overwrite")
      )
@@ -336,7 +347,7 @@ def to_parquet(input_df: DataFrame, output_path: str) -> None:
     logger.info(f"Write to parquet")
 
     (input_df
-     .limit(21)
+     # .limit(21)
      .write
      .parquet(path=output_path, mode="overwrite")
      )
