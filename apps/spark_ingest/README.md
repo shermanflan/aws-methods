@@ -6,6 +6,9 @@ on Kubernetes.
 - [spark-submit](http://spark.apache.org/docs/latest/submitting-applications.html)
 - [Spark on Kubernetes](http://spark.apache.org/docs/latest/running-on-kubernetes.html)
 
+## How it Works
+![Spark on K8s](https://spark.apache.org/docs/latest/img/k8s-cluster-mode.png)
+
 # Building Spark 3.1.1 Images
 In order to run Spark on k8s, docker images for the respective distribution
 need to be built and deployed to ECR. Reference Docker images and tools
@@ -29,8 +32,16 @@ can be found from the Spark [distribution](https://spark.apache.org/downloads.ht
 
 # Technical Pre-requisites
 
+## Kubernetes
+
 - The service account credentials used by the driver pods must be allowed 
   to create pods, services and configmaps.
+- Permissions to list, create, edit and delete pods in your k8s cluster. 
+    - Verify by running:
+      `kubectl auth can-i <list|create|edit|delete> pods`
+- [Kubernetes DNS](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/) 
+  configured in the k8s cluster.
+- A running Kubernetes cluster at version >= 1.6
 
 # General Spark Configuration
 
