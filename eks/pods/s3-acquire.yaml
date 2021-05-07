@@ -23,6 +23,7 @@ spec:
         --master k8s://https://123456789.lky7.us-east-2.eks.amazonaws.com:443 \
         --deploy-mode cluster \
         --name spark-etl \
+        --conf spark.sql.shuffle.partitions=2 \
         --conf spark.executor.instances=4 \
         --conf spark.executor.memory=8G \
         --conf spark.executor.cores=2 \
@@ -31,7 +32,7 @@ spec:
         --conf spark.kubernetes.container.image.pullPolicy=Always \ 
         --conf spark.kubernetes.authenticate.driver.serviceAccountName=spark \
         --conf spark.kubernetes.executor.deleteOnTermination=false \
-        --conf spark.kubernetes.driverEnv.S3_SUFFIX=rh_20210503.gz \
+        --conf spark.kubernetes.driverEnv.S3_SUFFIX=rh_20210506.gz \
         --conf spark.kubernetes.driver.secretKeyRef.P3_BUCKET=aws-s3-secret:P3_BUCKET \
         --conf spark.kubernetes.driver.secretKeyRef.S3_PREFIX=aws-s3-secret:S3_PREFIX \
         --conf spark.kubernetes.driver.secretKeyRef.P3_AWS_ACCESS_KEY=aws-s3-secret:P3_AWS_ACCESS_KEY \

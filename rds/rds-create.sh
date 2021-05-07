@@ -8,7 +8,7 @@ set -o nounset
 aws rds create-db-instance \
     --db-name ${DB_NAME} \
     --db-instance-identifier ${PG_INSTANCE} \
-    --db-instance-class db.t3.micro \
+    --db-instance-class db.t3.large \
     --engine postgres \
     --master-username ${PG_USER} \
     --master-user-password ${PG_PASSWORD} \

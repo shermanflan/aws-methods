@@ -45,6 +45,15 @@ can be found from the Spark [distribution](https://spark.apache.org/downloads.ht
 
 # General Spark Configuration
 
+## Configuration
+To override overall Spark configurtion properties (in order of increasing
+precedence):
+
+1. Configuration changes in the conf/spark-defaults.conf file apply to the
+   Spark cluster and all Spark applications submitted to the cluster.
+2. Use the `--conf` flag at the `spark-submit` command line.
+3. Programmatically add a `.config` property to the `SparkSession.builder`.
+
 ## Logging
 To override the default log configuration:
 
@@ -107,6 +116,13 @@ configure Spark to read from S3.
     - hadoop-3.2.0/share/hadoop/tools/lib/hadoop-aws-3.2.0.jar
     - hadoop-3.2.0/share/hadoop/tools/lib/aws-java-sdk-bundle-1.11.375.jar
 5. Build the Spark 3.1.1 container with Python bindings.
+
+## Troubleshooting
+
+1. To view the Spark UI, port-forward to the active driver pod:
+```
+kubectl port-forward <SPARK_DRIVER_POD_NAME> 4040:4040
+```
 
 # Smoke Tests
 - Run SparkPi

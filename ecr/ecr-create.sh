@@ -14,7 +14,7 @@ aws ecr create-repository \
 
 declare REGISTRY_ID=$(aws ecr describe-registry | jq -r .registryId)
 
-echo "Authentiating Docker to [${REGISTRY_ID}]"
+echo "Authenticating Docker to [${REGISTRY_ID}]"
 aws ecr get-login-password --region ${REGION} | \
     docker login \
         --username AWS \

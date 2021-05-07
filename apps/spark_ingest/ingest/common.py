@@ -146,6 +146,7 @@ def psv_to_sql(session, file_schema, input_path: str,
                .read
                .csv(input_path,
                     sep='|', header=False, schema=file_schema)
+               .repartition(32)
                )
 
     logger.info(f"Write to SQL (4): {output_table}")
@@ -157,7 +158,7 @@ def psv_to_sql(session, file_schema, input_path: str,
      # .limit(21)
      .withColumn("created_on", to_timestamp(lit(load_date), "yyyyMMdd"))
      .write
-     .option('numPartitions', '4')
+     .option('numPartitions', '32')
      .jdbc(url=target_jdbc,
            table=output_table,
            mode='append')

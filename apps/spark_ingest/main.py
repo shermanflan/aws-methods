@@ -9,6 +9,7 @@ docker run --rm -it --name test_pyspark spark-ingest:latest /bin/bash
 from datetime import datetime, date, timedelta
 import logging
 import os
+from time import sleep
 
 # import boto3
 import click
@@ -61,6 +62,13 @@ def main(filepath: str, output_path: str) -> None:
                              os.environ['CO_AWS_ACCESS_KEY'])
                      .config("spark.hadoop.fs.s3a.bucket.condesa.secret.key",
                              os.environ['CO_AWS_SECRET_KEY'])
+                     # Dynamic allocation
+                     # .config("spark.shuffle.service.enabled", "true")
+                     # .config("spark.dynamicAllocation.enabled", "true")
+                     # .config("spark.dynamicAllocation.minExecutors", "2")
+                     # .config("spark.dynamicAllocation.schedulerBacklogTimeout", "1m")
+                     # .config("spark.dynamicAllocation.maxExecutors", "8")
+                     # .config("spark.dynamicAllocation.executorIdleTimeout", "2min")
                      # TODO: S3A Optimizations
                      # .config("spark.hadoop.fs.s3a.committer.name", "directory")
                      # .config("spark.sql.sources.commitProtocolClass",
@@ -72,6 +80,7 @@ def main(filepath: str, output_path: str) -> None:
                      # .config("spark.sql.parquet.mergeSchema", "false")
                      # .config("spark.sql.parquet.filterPushdown", "true")
                      # .config("spark.sql.hive.metastorePartitionPruning", "true")
+                     # Hive configuration
                      .config("spark.sql.warehouse.dir", "/opt/spark/hive_warehouse")
                      .config("spark.sql.catalogImplementation", "hive")
                      .getOrCreate()
@@ -97,6 +106,7 @@ def main(filepath: str, output_path: str) -> None:
 
     logger.info(f"Load process finished in {datetime.now() - start}")
 
+    sleep(60*3)
     spark_session.stop()
 
 
