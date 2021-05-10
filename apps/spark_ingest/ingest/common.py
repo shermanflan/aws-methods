@@ -41,6 +41,8 @@ def psv_filter_to_sql(session, file_schema, input_path: str,
     ```
     df = spark.sql("SELECT * FROM parquet.`examples/users.parquet`")
     ```
+    TODO: Fine-tune the number of partitions. In general, the recommendation
+    is to use a multiple of the number of Spark workers.
 
     :param session: the Spark session
     :param file_schema: the schema struct array
@@ -58,12 +60,13 @@ def psv_filter_to_sql(session, file_schema, input_path: str,
                .read
                .csv(input_path, sep='|', header=False, schema=file_schema)
                .where((col("extraction_date") > filter_date))
+               .repartition(8)
                )
     file_df.createOrReplaceTempView("vw_extraction_summary")
 
     logger.info(f"Grouped summary, filtered > {filter_date}")
 
-    # Spark SQL
+    # Spark SQL API
     counts_df = session.sql("""
         SELECT  object as section,
                 date_trunc('day', extraction_date) as extraction_day,
@@ -72,7 +75,7 @@ def psv_filter_to_sql(session, file_schema, input_path: str,
         GROUP BY object, date_trunc('day', extraction_date)
         ORDER BY extraction_day DESC, section
     """)
-    # Equivalent DataFrame API
+    # DataFrame API
     # counts_df = (file_df
     #              .withColumnRenamed("object", "section")
     #              .withColumn("extraction_day", date_trunc('day', 'extraction_date'))
@@ -82,12 +85,11 @@ def psv_filter_to_sql(session, file_schema, input_path: str,
     #              )
     counts_df.show(n=21, truncate=False)
 
-    logger.info(f"Write to SQL (4): {output_table}")
+    logger.info(f"Write to SQL: {output_table}")
 
     (counts_df
      .write
-     # Use a multiple of the number of Spark workers
-     .option('numPartitions', '4')
+     .option('numPartitions', '8')
      .jdbc(url=target_jdbc, table=output_table, mode='overwrite')
      )
 
@@ -144,21 +146,19 @@ def psv_to_sql(session, file_schema, input_path: str,
 
     file_df = (session
                .read
-               .csv(input_path,
-                    sep='|', header=False, schema=file_schema)
-               .repartition(32)
+               .csv(input_path, sep='|', header=False, schema=file_schema)
+               .repartition(8)
                )
 
-    logger.info(f"Write to SQL (4): {output_table}")
+    logger.info(f"Write to SQL: {output_table}")
 
     load_date = re.sub(r"rh_(?P<dt>\d+).gz", "\g<dt>", S3_SUFFIX, re.I)
 
     # Creates a table with given schema
     (file_df
-     # .limit(21)
      .withColumn("created_on", to_timestamp(lit(load_date), "yyyyMMdd"))
      .write
-     .option('numPartitions', '32')
+     .option('numPartitions', '8')
      .jdbc(url=target_jdbc,
            table=output_table,
            mode='append')

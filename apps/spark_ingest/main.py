@@ -106,7 +106,7 @@ def main(filepath: str, output_path: str) -> None:
 
     logger.info(f"Load process finished in {datetime.now() - start}")
 
-    sleep(60*3)
+    sleep(60*5)
     spark_session.stop()
 
 
