@@ -1,6 +1,7 @@
 import asyncio
 from datetime import datetime
 import logging
+import time
 
 import boto3
 import click
@@ -55,6 +56,33 @@ def test_algo(n) -> int:
     return total
 
 
+async def say_after(delay, what):
+    await asyncio.sleep(delay)
+    print(what)
+
+
+async def scatter():
+    task1 = asyncio.create_task(
+        say_after(7, 'hello'))
+
+    task2 = asyncio.create_task(
+        say_after(7, 'world'))
+
+    task3 = asyncio.create_task(
+        say_after(7, '!'))
+
+    print(f"started at {time.strftime('%X')}")
+
+    # Wait until both tasks are completed (should take
+    # around 2 seconds.)
+    for t in [task1, task2, task3]:
+        await t
+        # await task2
+        # await task3
+
+    print(f"finished at {time.strftime('%X')}")
+
+
 @click.command()
 @click.option('--asynchronous/--no-asynchronous', default=True,
               show_default=True, help='Set/unset asynchronous behavior')
@@ -84,5 +112,7 @@ def main(asynchronous: bool) -> None:
 if __name__ == "__main__":
 
     # main()
-    print(test_algo(4))
-    print(test_algo(5))
+    # print(test_algo(4))
+    # print(test_algo(5))
+
+    asyncio.run(scatter())
